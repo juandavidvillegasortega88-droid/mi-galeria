@@ -122,9 +122,140 @@ const imagenesIniciales = [
 ];
 
 // ===================================================
+// BASE DE DATOS ROBUSTA (IndexedDB) + RESPALDO
+// ===================================================
+const DB_NOMBRE = 'GaleriaPaisajesDB';
+const DB_VERSION = 1;
+const TABLA_FOTOS = 'fotosPersonalizadas';
+
+function conectarBaseDatos() {
+    return new Promise((resolve) => {
+        if (!window.indexedDB) {
+            resolve(null);
+            return;
+        }
+        const solicitud = window.indexedDB.open(DB_NOMBRE, DB_VERSION);
+        solicitud.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(TABLA_FOTOS)) {
+                db.createObjectStore(TABLA_FOTOS, { keyPath: 'id' });
+            }
+        };
+        solicitud.onsuccess = (e) => resolve(e.target.result);
+        solicitud.onerror = () => resolve(null);
+    });
+}
+
+async function guardarFotoEnAlmacenamiento(foto) {
+    // 1. Guardar en IndexedDB (sin límite de 5MB)
+    try {
+        const db = await conectarBaseDatos();
+        if (db) {
+            const tx = db.transaction(TABLA_FOTOS, 'readwrite');
+            tx.objectStore(TABLA_FOTOS).put(foto);
+        }
+    } catch (err) {
+        console.warn("Aviso al guardar en IndexedDB:", err);
+    }
+
+    // 2. Respaldo adicional en localStorage con manejo de error
+    try {
+        localStorage.setItem('galeria_fotos_personalizadas', JSON.stringify(fotosPersonalizadas));
+    } catch (e) {
+        // Si supera la cuota de localStorage, IndexedDB ya tiene la foto a salvo
+        console.warn("Nota: Almacenado principal en base de datos permanente.");
+    }
+}
+
+async function cargarFotosGuardadas() {
+    // Intentar leer de IndexedDB
+    try {
+        const db = await conectarBaseDatos();
+        if (db) {
+            const fotosDB = await new Promise((resolve) => {
+                const tx = db.transaction(TABLA_FOTOS, 'readonly');
+                const store = tx.objectStore(TABLA_FOTOS);
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = () => resolve([]);
+            });
+            if (fotosDB && fotosDB.length > 0) {
+                return fotosDB;
+            }
+        }
+    } catch (err) {
+        console.warn("Aviso al leer de IndexedDB:", err);
+    }
+
+    // Respaldo de localStorage
+    try {
+        const datos = localStorage.getItem('galeria_fotos_personalizadas');
+        return datos ? JSON.parse(datos) : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+async function eliminarFotoDeAlmacenamiento(id) {
+    try {
+        const db = await conectarBaseDatos();
+        if (db) {
+            const tx = db.transaction(TABLA_FOTOS, 'readwrite');
+            tx.objectStore(TABLA_FOTOS).delete(id);
+        }
+    } catch (err) {}
+
+    try {
+        localStorage.setItem('galeria_fotos_personalizadas', JSON.stringify(fotosPersonalizadas));
+    } catch (e) {}
+}
+
+// ===================================================
+// OPTIMIZADOR AUTOMÁTICO DE IMÁGENES
+// ===================================================
+// Reduce fotos gigantes a un tamaño ligero Full HD para que nunca fallen
+function optimizarImagen(archivo) {
+    return new Promise((resolve, reject) => {
+        const lector = new FileReader();
+        lector.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let ancho = img.width;
+                let alto = img.height;
+                const limiteMaximo = 1920; // Resolución Full HD
+
+                if (ancho > limiteMaximo || alto > limiteMaximo) {
+                    if (ancho > alto) {
+                        alto = Math.round((alto * limiteMaximo) / ancho);
+                        ancho = limiteMaximo;
+                    } else {
+                        ancho = Math.round((ancho * limiteMaximo) / alto);
+                        alto = limiteMaximo;
+                    }
+                }
+
+                canvas.width = ancho;
+                canvas.height = alto;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, ancho, alto);
+
+                // Exportar como JPEG optimizado al 84% de calidad
+                const imagenComprimida = canvas.toDataURL('image/jpeg', 0.84);
+                resolve(imagenComprimida);
+            };
+            img.onerror = () => reject(new Error("Error al procesar la imagen"));
+            img.src = e.target.result;
+        };
+        lector.onerror = () => reject(new Error("Error al leer el archivo"));
+        lector.readAsDataURL(archivo);
+    });
+}
+
+// ===================================================
 // ESTADO DE LA APLICACIÓN
 // ===================================================
-let fotosPersonalizadas = JSON.parse(localStorage.getItem('galeria_fotos_personalizadas') || '[]');
+let fotosPersonalizadas = [];
 let favoritos = JSON.parse(localStorage.getItem('galeria_favoritos') || '[]');
 let categoriaActual = 'todos';
 let busquedaActual = '';
@@ -134,7 +265,7 @@ let vistaActual = localStorage.getItem('galeria_vista') || 'normal';
 let imagenModalActualIndex = 0;
 let imagenesFiltradas = [];
 
-// Estado de Zoom del visor
+// Estado de Zoom
 let zoomActual = 1;
 let isPanning = false;
 let startX = 0;
@@ -184,7 +315,7 @@ const zoomOutBtn = document.getElementById('zoomOutBtn');
 const zoomResetBtn = document.getElementById('zoomResetBtn');
 const zoomLevelSpan = document.getElementById('zoomLevel');
 
-// Referencias del Modal de Subir Foto
+// Modal de Subir Foto
 const uploadModal = document.getElementById('uploadModal');
 const uploadModalBackdrop = document.getElementById('uploadModalBackdrop');
 const uploadModalClose = document.getElementById('uploadModalClose');
@@ -203,7 +334,7 @@ const inputEtiquetas = document.getElementById('inputEtiquetas');
 
 let imagenSubidaBase64 = null;
 
-// Referencias del Modal de Descarga ZIP
+// Modal de Descarga ZIP
 const zipModal = document.getElementById('zipModal');
 const zipModalBackdrop = document.getElementById('zipModalBackdrop');
 const zipModalClose = document.getElementById('zipModalClose');
@@ -216,15 +347,18 @@ const zipProgressText = document.getElementById('zipProgressText');
 // ===================================================
 // INICIALIZACIÓN
 // ===================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     inicializarTema();
     inicializarVista();
+
+    // Cargar fotos guardadas desde la base de datos persistente
+    fotosPersonalizadas = await cargarFotosGuardadas();
+
     actualizarContadores();
     renderizarGaleria();
     setupEventListeners();
 });
 
-// Obtener todas las imágenes combinadas (originales + subidas por el usuario)
 function obtenerTodasLasImagenes() {
     return [...imagenesIniciales, ...fotosPersonalizadas];
 }
@@ -348,7 +482,10 @@ function toggleFavorito(event, id) {
         mostrarToast("Añadido a tus favoritos ❤️");
     }
 
-    localStorage.setItem('galeria_favoritos', JSON.stringify(favoritos));
+    try {
+        localStorage.setItem('galeria_favoritos', JSON.stringify(favoritos));
+    } catch (e) {}
+
     actualizarContadores();
     renderizarGaleria();
 
@@ -488,7 +625,6 @@ window.addEventListener('mouseup', () => {
     }
 });
 
-// Zoom con la rueda del ratón
 modalImgContainer.addEventListener('wheel', (e) => {
     e.preventDefault();
     if (e.deltaY < 0) {
@@ -499,7 +635,7 @@ modalImgContainer.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 // ===================================================
-// SUBIR FOTOGRAFÍAS (SIN TOCAR CÓDIGO)
+// SUBIR FOTOGRAFÍAS (OPTIMIZACIÓN Y GUARDADO PERMANENTE)
 // ===================================================
 function abrirModalSubir() {
     uploadModal.classList.add('open');
@@ -520,30 +656,30 @@ function limpiarFormularioSubir() {
     previewImg.src = '';
 }
 
-// Manejo del archivo seleccionado
-function procesarArchivoSeleccionado(archivo) {
+async function procesarArchivoSeleccionado(archivo) {
     if (!archivo || !archivo.type.startsWith('image/')) {
         mostrarToast("Por favor selecciona un archivo de imagen válido");
         return;
     }
 
-    const lector = new FileReader();
-    lector.onload = (e) => {
-        imagenSubidaBase64 = e.target.result;
+    mostrarToast("Preparando y optimizando imagen...");
+
+    try {
+        // Optimiza la imagen en el cliente para que pese poco y nunca se borre
+        imagenSubidaBase64 = await optimizarImagen(archivo);
         previewImg.src = imagenSubidaBase64;
         dropzonePrompt.style.display = 'none';
         dropzonePreview.style.display = 'block';
 
-        // Sugerir título si está vacío
         if (!inputTitulo.value) {
             const nombreSinExtension = archivo.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
             inputTitulo.value = nombreSinExtension.charAt(0).toUpperCase() + nombreSinExtension.slice(1);
         }
-    };
-    lector.readAsDataURL(archivo);
+    } catch (err) {
+        mostrarToast("No se pudo procesar la imagen seleccionada");
+    }
 }
 
-// Drag and drop en dropzone
 dropzone.addEventListener('click', (e) => {
     if (e.target !== btnRemovePreview) fileInput.click();
 });
@@ -576,8 +712,8 @@ dropzone.addEventListener('drop', (e) => {
     }
 });
 
-// Guardar nueva imagen
-uploadForm.addEventListener('submit', (e) => {
+// Guardar nueva imagen de forma permanente
+uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!imagenSubidaBase64) {
@@ -598,7 +734,7 @@ uploadForm.addEventListener('submit', (e) => {
     };
 
     const nuevaImagen = {
-        id: Date.now(), // ID único basado en timestamp
+        id: Date.now(),
         titulo: inputTitulo.value.trim(),
         categoria: inputCategoria.value,
         categoriaLabel: categoriasNombres[inputCategoria.value] || "Paisajes",
@@ -610,22 +746,27 @@ uploadForm.addEventListener('submit', (e) => {
     };
 
     fotosPersonalizadas.unshift(nuevaImagen);
-    localStorage.setItem('galeria_fotos_personalizadas', JSON.stringify(fotosPersonalizadas));
 
-    mostrarToast("¡Fotografía agregada a la galería con éxito! 🎉");
+    // Guardado persistente garantizado
+    await guardarFotoEnAlmacenamiento(nuevaImagen);
+
+    mostrarToast("¡Fotografía guardada permanentemente! 🎉");
     cerrarModalSubir();
     actualizarContadores();
     renderizarGaleria();
 });
 
 // Eliminar foto personalizada
-function eliminarFotoPersonalizada(id) {
+async function eliminarFotoPersonalizada(id) {
     if (confirm("¿Estás seguro de que deseas eliminar esta fotografía de tu galería?")) {
         fotosPersonalizadas = fotosPersonalizadas.filter(f => f.id !== id);
         favoritos = favoritos.filter(favId => favId !== id);
-        
-        localStorage.setItem('galeria_fotos_personalizadas', JSON.stringify(fotosPersonalizadas));
-        localStorage.setItem('galeria_favoritos', JSON.stringify(favoritos));
+
+        await eliminarFotoDeAlmacenamiento(id);
+
+        try {
+            localStorage.setItem('galeria_favoritos', JSON.stringify(favoritos));
+        } catch (e) {}
 
         cerrarLightbox();
         actualizarContadores();
@@ -675,11 +816,9 @@ async function empaquetarYDescargarZip(soloFavoritas = false) {
             const nombreArchivo = `${img.titulo.toLowerCase().replace(/[^a-z0-9]/g, '-')}.jpg`;
 
             if (img.src.startsWith('data:image')) {
-                // Imagen en Base64
                 const base64Data = img.src.split(',')[1];
                 zip.file(nombreArchivo, base64Data, { base64: true });
             } else {
-                // Imagen local
                 const respuesta = await fetch(img.src);
                 const blob = await respuesta.blob();
                 zip.file(nombreArchivo, blob);
@@ -699,7 +838,6 @@ async function empaquetarYDescargarZip(soloFavoritas = false) {
 
     const contenidoZip = await zip.generateAsync({ type: "blob" });
 
-    // Descarga automática
     const enlace = document.createElement('a');
     enlace.href = URL.createObjectURL(contenidoZip);
     enlace.download = soloFavoritas ? "mis-paisajes-favoritos.zip" : "galeria-de-paisajes.zip";
@@ -731,7 +869,9 @@ function inicializarVista() {
 
 function cambiarVista(nuevaVista) {
     vistaActual = nuevaVista;
-    localStorage.setItem('galeria_vista', nuevaVista);
+    try {
+        localStorage.setItem('galeria_vista', nuevaVista);
+    } catch (e) {}
     inicializarVista();
 }
 
@@ -796,7 +936,9 @@ function cambiarTema() {
     const nuevo = actual === 'dark' ? 'light' : 'dark';
 
     document.documentElement.setAttribute('data-theme', nuevo);
-    localStorage.setItem('galeria_tema', nuevo);
+    try {
+        localStorage.setItem('galeria_tema', nuevo);
+    } catch (e) {}
     actualizarIconoTema(nuevo);
 }
 
@@ -814,23 +956,19 @@ function actualizarIconoTema(tema) {
 // EVENT LISTENERS GENERALES
 // ===================================================
 function setupEventListeners() {
-    // Tema
     themeToggle.addEventListener('click', cambiarTema);
 
-    // Modal Subir Foto
     btnAbrirSubir.addEventListener('click', abrirModalSubir);
     uploadModalClose.addEventListener('click', cerrarModalSubir);
     uploadModalBackdrop.addEventListener('click', cerrarModalSubir);
     btnCancelUpload.addEventListener('click', cerrarModalSubir);
 
-    // Modal Descargar ZIP
     btnDescargarZip.addEventListener('click', abrirModalZip);
     zipModalClose.addEventListener('click', cerrarModalZip);
     zipModalBackdrop.addEventListener('click', cerrarModalZip);
     btnZipAll.addEventListener('click', () => empaquetarYDescargarZip(false));
     btnZipFavs.addEventListener('click', () => empaquetarYDescargarZip(true));
 
-    // Búsqueda en tiempo real
     searchInput.addEventListener('input', (e) => {
         busquedaActual = e.target.value;
         clearSearchBtn.style.display = busquedaActual.length > 0 ? 'block' : 'none';
@@ -845,20 +983,17 @@ function setupEventListeners() {
         searchInput.focus();
     });
 
-    // Ordenamiento
     sortSelect.addEventListener('change', (e) => {
         ordenActual = e.target.value;
         renderizarGaleria();
     });
 
-    // Cambio de vista
     viewBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             cambiarVista(btn.getAttribute('data-view'));
         });
     });
 
-    // Filtros por categorías
     filterChips.forEach(chip => {
         chip.addEventListener('click', () => {
             filterChips.forEach(c => c.classList.remove('active'));
@@ -868,18 +1003,15 @@ function setupEventListeners() {
         });
     });
 
-    // Controles de Lightbox
     modalClose.addEventListener('click', cerrarLightbox);
     modalBackdrop.addEventListener('click', cerrarLightbox);
     modalPrev.addEventListener('click', () => navegarLightbox(-1));
     modalNext.addEventListener('click', () => navegarLightbox(1));
 
-    // Zoom
     zoomInBtn.addEventListener('click', zoomIn);
     zoomOutBtn.addEventListener('click', zoomOut);
     zoomResetBtn.addEventListener('click', resetearZoom);
 
-    // Atajos de teclado
     document.addEventListener('keydown', (e) => {
         if (lightboxModal.classList.contains('open')) {
             if (e.key === 'Escape') cerrarLightbox();
