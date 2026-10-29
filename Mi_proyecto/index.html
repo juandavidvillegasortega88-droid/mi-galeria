@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galería de Paisajes | Colección Visual</title>
-    <!-- Google Fonts: Plus Jakarta Sans -->
+    <!-- Fuente Google: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <!-- Header & Navegación -->
+    <!-- Encabezado Principal -->
     <header class="header">
         <div class="header-container">
             <div class="logo-area">
@@ -27,32 +27,105 @@
                 </div>
             </div>
 
-            <!-- Botón Tema Oscuro / Claro -->
-            <button id="themeToggle" class="theme-btn" title="Cambiar tema de color" aria-label="Cambiar tema">
-                <svg id="themeIconSun" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                </svg>
-                <svg id="themeIconMoon" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                </svg>
-            </button>
+            <!-- Acciones Rápidas en Cabecera -->
+            <div class="header-actions">
+                <!-- Botón Añadir Imagen -->
+                <button id="btnAbrirSubir" class="btn btn-accent" title="Añadir nueva fotografía">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Subir Foto</span>
+                </button>
+
+                <!-- Botón Descargar en ZIP -->
+                <button id="btnDescargarZip" class="btn btn-secondary" title="Descargar colección en archivo ZIP">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Bajar ZIP</span>
+                </button>
+
+                <!-- Botón Tema Oscuro / Claro -->
+                <button id="themeToggle" class="theme-btn" title="Cambiar tema de color" aria-label="Cambiar tema">
+                    <svg id="themeIconSun" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg id="themeIconMoon" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                </button>
+            </div>
         </div>
     </header>
 
     <!-- Contenido Principal -->
     <main class="main-content">
-        <!-- Barra de Búsqueda y Filtros -->
+        <!-- Barra de Control: Búsqueda, Ordenamiento y Vistas -->
         <section class="controls-section">
-            <div class="search-box">
-                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input type="text" id="searchInput" placeholder="Buscar paisajes por nombre o etiqueta..." autocomplete="off">
-                <button id="clearSearch" class="clear-btn" title="Limpiar búsqueda" style="display: none;">&times;</button>
+            <div class="search-and-tools">
+                <!-- Buscador -->
+                <div class="search-box">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Buscar por título, lugar (ej: Alpes) o palabra clave..." autocomplete="off">
+                    <button id="clearSearch" class="clear-btn" title="Limpiar búsqueda" style="display: none;">&times;</button>
+                </div>
+
+                <!-- Herramientas: Ordenar y Cambiar Diseño -->
+                <div class="tools-group">
+                    <!-- Selector de Ordenamiento -->
+                    <div class="select-wrapper">
+                        <label for="sortSelect" class="sr-only">Ordenar por</label>
+                        <select id="sortSelect" class="custom-select" title="Ordenar imágenes">
+                            <option value="predeterminado">Ordenar: Predeterminado</option>
+                            <option value="nombre-asc">Nombre: De la A a la Z</option>
+                            <option value="nombre-desc">Nombre: De la Z a la A</option>
+                            <option value="recientes">Más recientes primero</option>
+                        </select>
+                    </div>
+
+                    <!-- Selector de Tamaño de Cuadrícula / Vista -->
+                    <div class="view-toggles" role="group" aria-label="Cambiar vista de cuadrícula">
+                        <button class="view-btn active" data-view="normal" title="Vista normal">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                        </button>
+                        <button class="view-btn" data-view="compacta" title="Vista compacta (más fotos por fila)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="4" height="4"></rect>
+                                <rect x="10" y="3" width="4" height="4"></rect>
+                                <rect x="17" y="3" width="4" height="4"></rect>
+                                <rect x="3" y="10" width="4" height="4"></rect>
+                                <rect x="10" y="10" width="4" height="4"></rect>
+                                <rect x="17" y="10" width="4" height="4"></rect>
+                                <rect x="3" y="17" width="4" height="4"></rect>
+                                <rect x="10" y="17" width="4" height="4"></rect>
+                                <rect x="17" y="17" width="4" height="4"></rect>
+                            </svg>
+                        </button>
+                        <button class="view-btn" data-view="mosaico" title="Vista mural / mosaico fluido">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="7" height="11"></rect>
+                                <rect x="14" y="3" width="7" height="6"></rect>
+                                <rect x="14" y="11" width="7" height="10"></rect>
+                                <rect x="3" y="16" width="7" height="5"></rect>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
 
+            <!-- Filtros de Categoría -->
             <div class="filter-chips" id="filterContainer">
-                <button class="chip active" data-category="todos">Todos</button>
+                <button class="chip active" data-category="todos">Todos (<span id="totalCount">0</span>)</button>
                 <button class="chip" data-category="montanas">Montañas</button>
                 <button class="chip" data-category="bosques">Bosques</button>
                 <button class="chip" data-category="lagos">Lagos y Playas</button>
@@ -66,34 +139,65 @@
             </div>
         </section>
 
-        <!-- Cuadrícula de Galería -->
+        <!-- Cuadrícula de la Galería -->
         <section class="gallery-section">
             <div class="gallery-status" id="galleryStatus"></div>
-            <div class="galeria" id="galleryGrid">
-                <!-- Se generará dinámicamente con JavaScript -->
+            <div class="galeria vista-normal" id="galleryGrid">
+                <!-- Se genera dinámicamente con JavaScript -->
             </div>
         </section>
     </main>
 
-    <!-- Modal / Visor de Imagen Pantalla Completa (Lightbox) -->
+    <!-- ===================================================
+         MODAL / VISOR DE IMAGEN A PANTALLA COMPLETA
+    =================================================== -->
     <div id="lightboxModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="modal-backdrop" id="modalBackdrop"></div>
         <div class="modal-wrapper">
+            <!-- Botón Cerrar -->
             <button class="modal-close" id="modalClose" aria-label="Cerrar visor">&times;</button>
             
+            <!-- Botón Anterior -->
             <button class="modal-nav modal-prev" id="modalPrev" aria-label="Imagen anterior">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M15 18l-6-6 6-6"/>
                 </svg>
             </button>
 
+            <!-- Contenedor de la Imagen con Zoom -->
             <div class="modal-content">
-                <img id="modalImg" src="" alt="Vista previa">
-                <div class="modal-info">
-                    <div>
-                        <h3 id="modalTitle">Título del Paisaje</h3>
-                        <span id="modalCategory" class="badge">Categoría</span>
+                <div class="modal-img-container" id="modalImgContainer">
+                    <img id="modalImg" src="" alt="Vista previa">
+                    
+                    <!-- Barra flotante de Zoom -->
+                    <div class="zoom-controls">
+                        <button id="zoomOutBtn" class="zoom-btn" title="Alejar (-)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <span id="zoomLevel" class="zoom-level">100%</span>
+                        <button id="zoomInBtn" class="zoom-btn" title="Acercar (+)">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <button id="zoomResetBtn" class="zoom-btn" title="Restablecer tamaño">1:1</button>
                     </div>
+                </div>
+
+                <!-- Ficha Informativa del Paisaje -->
+                <div class="modal-info">
+                    <div class="modal-text">
+                        <h3 id="modalTitle">Título del Paisaje</h3>
+                        <div class="modal-meta">
+                            <span id="modalCategory" class="badge">Categoría</span>
+                            <span id="modalLocation" class="location-badge" style="display: none;">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                <span id="modalLocationText">Ubicación</span>
+                            </span>
+                        </div>
+                    </div>
+                    
                     <div class="modal-actions">
                         <button class="btn-icon" id="modalFavBtn" title="Añadir a favoritos">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -112,10 +216,17 @@
                             </svg>
                             Compartir
                         </button>
+                        <button class="btn-icon btn-delete" id="modalDeleteBtn" title="Eliminar foto personalizada" style="display: none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
 
+            <!-- Botón Siguiente -->
             <button class="modal-nav modal-next" id="modalNext" aria-label="Imagen siguiente">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 18l6-6-6-6"/>
@@ -124,9 +235,120 @@
         </div>
     </div>
 
-    <!-- Contenedor de Alertas / Toast -->
+    <!-- ===================================================
+         MODAL: AÑADIR NUEVA FOTO (SIN TOCAR CÓDIGO)
+    =================================================== -->
+    <div id="uploadModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal-backdrop" id="uploadModalBackdrop"></div>
+        <div class="upload-modal-wrapper">
+            <div class="upload-modal-card">
+                <div class="upload-header">
+                    <h2>Subir Nueva Fotografía</h2>
+                    <button class="modal-close-simple" id="uploadModalClose">&times;</button>
+                </div>
+                <p class="upload-sub">Añade imágenes a tu galería al instante sin editar ningún archivo.</p>
+
+                <form id="uploadForm" class="upload-form">
+                    <!-- Zona para arrastrar o seleccionar archivo -->
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="fileInput" accept="image/*" class="file-input-hidden">
+                        <div id="dropzonePrompt" class="dropzone-prompt">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <p><strong>Haz clic aquí</strong> o arrastra una imagen</p>
+                            <span>Formatos: JPG, PNG, WEBP</span>
+                        </div>
+                        <div id="dropzonePreview" class="dropzone-preview" style="display: none;">
+                            <img id="previewImg" src="" alt="Previsualización">
+                            <button type="button" id="btnRemovePreview" class="btn-remove-preview" title="Quitar imagen">&times;</button>
+                        </div>
+                    </div>
+
+                    <!-- Campos del formulario -->
+                    <div class="form-group">
+                        <label for="inputTitulo">Título de la fotografía *</label>
+                        <input type="text" id="inputTitulo" placeholder="Ej: Amanecer en las Colinas" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="inputCategoria">Categoría *</label>
+                            <select id="inputCategoria" required>
+                                <option value="montanas">Montañas</option>
+                                <option value="bosques">Bosques</option>
+                                <option value="lagos">Lagos y Playas</option>
+                                <option value="atardeceres">Atardeceres</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inputUbicacion">Ubicación (Opcional)</label>
+                            <input type="text" id="inputUbicacion" placeholder="Ej: Alpes Suizos, Bariloche...">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputEtiquetas">Palabras clave para el buscador</label>
+                        <input type="text" id="inputEtiquetas" placeholder="Separadas por comas (ej: nieve, sol, cielo, montaña)">
+                    </div>
+
+                    <div class="upload-buttons">
+                        <button type="button" class="btn btn-secondary" id="btnCancelUpload">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" id="btnSubmitUpload">Guardar en la Galería</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================
+         MODAL: DESCARGAR COLECCIÓN EN ZIP
+    =================================================== -->
+    <div id="zipModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal-backdrop" id="zipModalBackdrop"></div>
+        <div class="upload-modal-wrapper" style="max-width: 460px;">
+            <div class="upload-modal-card">
+                <div class="upload-header">
+                    <h2>Descargar Colección</h2>
+                    <button class="modal-close-simple" id="zipModalClose">&times;</button>
+                </div>
+                <p class="upload-sub">Descarga las fotografías de alta calidad en un solo archivo comprimido (.zip).</p>
+                
+                <div class="zip-options">
+                    <button class="zip-option-btn" id="btnZipAll">
+                        <div class="zip-icon">📦</div>
+                        <div>
+                            <strong>Descargar todas las fotos</strong>
+                            <p>Incluye toda la colección de imágenes</p>
+                        </div>
+                    </button>
+                    <button class="zip-option-btn" id="btnZipFavs">
+                        <div class="zip-icon">❤️</div>
+                        <div>
+                            <strong>Descargar solo mis favoritas</strong>
+                            <p>Empaqueta únicamente las fotos que marcaste</p>
+                        </div>
+                    </button>
+                </div>
+
+                <div id="zipProgress" class="zip-progress" style="display: none;">
+                    <div class="progress-bar-bg">
+                        <div id="zipProgressBar" class="progress-bar-fill"></div>
+                    </div>
+                    <span id="zipProgressText">Preparando archivo comprimido...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor de Alertas Flotantes (Toast) -->
     <div id="toastContainer" class="toast-container"></div>
 
+    <!-- Librería JSZip para generar archivos comprimidos en el navegador -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
