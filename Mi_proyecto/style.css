@@ -1,0 +1,83 @@
+body{
+    background-color: lightblue;
+}
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+}
+
+header{
+    background-color: rgb(15, 122, 172);
+    background: linear-gradient(90deg,rgb(72, 105, 93),rgb(67, 73, 121));
+    color: white;
+    padding: 20px;
+    text-align:center
+}
+
+h2 {
+    color:rgb(72, 105, 93);
+    border-bottom: 2px solid rgb(67, 73, 121);
+    padding-bottom: 8px;
+}
+#Imagenes{
+    padding: 20px;
+    text-align: center;
+
+}
+
+.galeria {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 15px;
+}
+
+.tarjeta {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0,2);
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.tarjeta:hover {
+    transform: scale(1.03);
+}
+
+.tarjeta img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+    
+
+}
+
+.botones {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    justify-content: center;
+}
+
+.btn {
+    background: rgb(72, 105, 93);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background: #0a5;
+}
+
+@media (max-width: 768) {
+    .galeria {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1> MI APLICACION </h1>
+        <nav>MENU</nav>
+    </header>
+    <main>
+    <section id="Imagenes">
+        <h2>Imagenes de paisajes</h2>
+            <div class="galeria">
+                <div class="tarjeta">
+                    <img src="img/paisaje1.jpg" alt="Paisaje 1">
+                    <div class="botones">
+                        <a href="img/paisaje1.jpg" download="paisaje1.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje1.jpg')">Compartir</button>
+                    </div>
+                </div>
+                
+                <div class="tarjeta">
+                    <img src="img/paisaje2.jpg" alt="Paisaje 2">
+                    <div class="botones">
+                        <a href="img/paisaj2.jpg" download="paisaje2.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje2.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje3.jpg" alt="Paisaje 3">
+                    <div class="botones">
+                        <a href="img/paisaje3.jpg" download="paisaje3.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje3.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje4.jpg" alt="Paisaje 4">
+                    <div class="botones">
+                        <a href="img/paisaje4.jpg" download="paisaje4.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje4.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje5.jpg" alt="Paisaje 5">
+                    <div class="botones">
+                        <a href="img/paisaje5.jpg" download="paisaje5.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje5.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje6.jpg" alt="Paisaje 6">
+                    <div class="botones">
+                        <a href="img/paisaje6.jpg" download="paisaje6.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje6.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje7.jpg" alt="Paisaje 7">
+                    <div class="botones">
+                        <a href="img/paisaje7.jpg" download="paisaje7.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje7.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje8.jpg" alt="Paisaje 8">
+                    <div class="botones">
+                        <a href="img/paisaje8.jpg" download="paisaje8.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje8.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje9.jpg" alt="Paisaje 9">
+                    <div class="botones">
+                        <a href="img/paisaje9.jpg" download="paisaje9.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje9.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje10.jpg" alt="Paisaje 10">
+                    <div class="botones">
+                        <a href="img/paisaje10.jpg" download="paisaje10.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje10.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje11.jpg" alt="Paisaje 11">
+                    <div class="botones">
+                        <a href="img/paisaje11.jpg" download="paisaje11.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje11.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+                <div class="tarjeta">
+                    <img src="img/paisaje12.jpg" alt="Paisaje 12">
+                    <div class="botones">
+                        <a href="img/paisaje12.jpg" download="paisaje12.jpg" class="btn">Descargar</a>
+                        <button class="btn" onclick="compartir('img/paisaje12.jpg')">Compartir</button>
+                    </div>
+                </div>
+
+            </div>
+    </section>
+</main>
+<script>
+    async function compartir(ruta){
+        const url = new URL(ruta,location.href).href;
+        if (navigator.share) {
+            await navigator.share({title:"Paisaje",url: url});
+        }else {
+            await navigator.clipboard.writeText(url);
+            alert("Enlace copiado");
+        }
+    }
+</script>
+</body>
+</html>
