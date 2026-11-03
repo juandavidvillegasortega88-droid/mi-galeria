@@ -717,6 +717,7 @@ async function subirFoto(e) {
             categoria_label: CATEGORIAS_NOMBRES[inputCategoria.value] || 'Paisajes',
             ubicacion: inputUbicacion.value.trim(),
             src: pub.publicUrl,
+            ruta: nombreArchivo, // tu tabla exige esta columna (ruta del archivo en Storage)
             tags: listaDeEtiquetas(inputEtiquetas.value)
         }).select().single();
 
