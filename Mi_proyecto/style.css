@@ -1190,3 +1190,21 @@ body {
         flex: 1;
     }
 }
+
+
+/* Barra de descarga (solo visible en Favoritos) */
+.fav-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.fav-toolbar-text {
+    font-weight: 600;
+}
+.fav-toolbar .btn {
+    flex: none;
+    width: auto;
+}

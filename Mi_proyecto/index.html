@@ -29,16 +29,6 @@
 
             <!-- Acciones Rápidas en Cabecera -->
             <div class="header-actions">
-                <!-- Botón Descargar en ZIP -->
-                <button id="btnDescargarZip" class="btn btn-secondary" title="Descargar colección en archivo ZIP">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
-                    <span>Bajar ZIP</span>
-                </button>
-
                 <!-- Botón Tema Oscuro / Claro -->
                 <button id="themeToggle" class="theme-btn" title="Cambiar tema de color" aria-label="Cambiar tema">
                     <svg id="themeIconSun" class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -132,6 +122,17 @@
 
         <!-- Cuadrícula de la Galería -->
         <section class="gallery-section">
+            <div class="fav-toolbar" id="favToolbar" style="display: none;">
+                <span class="fav-toolbar-text">Tus fotos favoritas</span>
+                <button id="btnDescargarFavs" class="btn btn-secondary" title="Descargar todas tus fotos favoritas">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Descargar favoritas</span>
+                </button>
+            </div>
             <div class="gallery-status" id="galleryStatus"></div>
             <div class="galeria vista-normal" id="galleryGrid">
                 <!-- Se genera dinámicamente con JavaScript -->
@@ -226,51 +227,9 @@
         </div>
     </div>
 
-    <!-- ===================================================
-         MODAL: DESCARGAR COLECCIÓN EN ZIP
-    =================================================== -->
-    <div id="zipModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="modal-backdrop" id="zipModalBackdrop"></div>
-        <div class="upload-modal-wrapper" style="max-width: 460px;">
-            <div class="upload-modal-card">
-                <div class="upload-header">
-                    <h2>Descargar Colección</h2>
-                    <button class="modal-close-simple" id="zipModalClose">&times;</button>
-                </div>
-                <p class="upload-sub">Descarga las fotografías de alta calidad en un solo archivo comprimido (.zip).</p>
-                
-                <div class="zip-options">
-                    <button class="zip-option-btn" id="btnZipAll">
-                        <div class="zip-icon">📦</div>
-                        <div>
-                            <strong>Descargar todas las fotos</strong>
-                            <p>Incluye toda la colección de imágenes</p>
-                        </div>
-                    </button>
-                    <button class="zip-option-btn" id="btnZipFavs">
-                        <div class="zip-icon">❤️</div>
-                        <div>
-                            <strong>Descargar solo mis favoritas</strong>
-                            <p>Empaqueta únicamente las fotos que marcaste</p>
-                        </div>
-                    </button>
-                </div>
-
-                <div id="zipProgress" class="zip-progress" style="display: none;">
-                    <div class="progress-bar-bg">
-                        <div id="zipProgressBar" class="progress-bar-fill"></div>
-                    </div>
-                    <span id="zipProgressText">Preparando archivo comprimido...</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Contenedor de Alertas Flotantes (Toast) -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <!-- Librería JSZip para generar archivos comprimidos en el navegador -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
     <script src="config.js"></script>
     <script src="datos.js"></script>

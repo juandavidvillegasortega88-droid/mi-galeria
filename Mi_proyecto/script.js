@@ -95,7 +95,8 @@ const favCountBadge = document.getElementById('favCount');
 const themeToggle = document.getElementById('themeToggle');
 const themeIconSun = document.getElementById('themeIconSun');
 const themeIconMoon = document.getElementById('themeIconMoon');
-const btnDescargarZip = document.getElementById('btnDescargarZip');
+const favToolbar = document.getElementById('favToolbar');
+const btnDescargarFavs = document.getElementById('btnDescargarFavs');
 const toastContainer = document.getElementById('toastContainer');
 
 // Referencias del Visor (Lightbox)
@@ -120,16 +121,6 @@ const zoomInBtn = document.getElementById('zoomInBtn');
 const zoomOutBtn = document.getElementById('zoomOutBtn');
 const zoomResetBtn = document.getElementById('zoomResetBtn');
 const zoomLevelSpan = document.getElementById('zoomLevel');
-
-// Modal de Descarga ZIP
-const zipModal = document.getElementById('zipModal');
-const zipModalBackdrop = document.getElementById('zipModalBackdrop');
-const zipModalClose = document.getElementById('zipModalClose');
-const btnZipAll = document.getElementById('btnZipAll');
-const btnZipFavs = document.getElementById('btnZipFavs');
-const zipProgress = document.getElementById('zipProgress');
-const zipProgressBar = document.getElementById('zipProgressBar');
-const zipProgressText = document.getElementById('zipProgressText');
 
 // ===================================================
 // INICIALIZACIÓN
@@ -198,6 +189,7 @@ function renderizarGaleria() {
 
     // 3. Render en pantalla
     galleryGrid.innerHTML = '';
+    favToolbar.style.display = (categoriaActual === 'favoritos' && favoritos.length > 0) ? 'flex' : 'none';
 
     if (imagenesFiltradas.length === 0) {
         galleryStatus.style.display = 'block';
@@ -433,81 +425,54 @@ modalImgContainer.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 // ===================================================
-// DESCARGA EN ZIP (JSZip)
+// DESCARGA DE FAVORITAS (archivos individuales)
 // ===================================================
-function abrirModalZip() {
-    zipModal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    zipProgress.style.display = 'none';
-}
-
-function cerrarModalZip() {
-    zipModal.classList.remove('open');
-    document.body.style.overflow = '';
-}
-
-async function empaquetarYDescargarZip(soloFavoritas = false) {
-    if (typeof JSZip === 'undefined') {
-        mostrarToast("La herramienta de compresión no está disponible sin conexión");
-        return;
-    }
-
-    let imagenesADescargar = soloFavoritas 
-        ? obtenerTodasLasImagenes().filter(img => favoritos.includes(img.id))
-        : obtenerTodasLasImagenes();
+async function descargarFavoritas() {
+    const imagenesADescargar = obtenerTodasLasImagenes().filter(img => favoritos.includes(String(img.id)));
 
     if (imagenesADescargar.length === 0) {
-        mostrarToast("No hay imágenes para descargar en esta selección");
+        mostrarToast("No tienes fotos favoritas para descargar");
         return;
     }
 
-    const zip = new JSZip();
-    zipProgress.style.display = 'block';
-    zipProgressBar.style.width = '0%';
-    zipProgressText.textContent = `Descargando 0 de ${imagenesADescargar.length} imágenes...`;
+    mostrarToast(`Descargando ${imagenesADescargar.length} fotos...`);
 
-    let procesadas = 0;
+    const nombresUsados = {};
 
     for (const img of imagenesADescargar) {
-        try {
-            const nombreArchivo = `${img.titulo.toLowerCase().replace(/[^a-z0-9]/g, '-')}.jpg`;
+        const base = img.titulo.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        nombresUsados[base] = (nombresUsados[base] || 0) + 1;
+        const nombreArchivo = nombresUsados[base] > 1
+            ? `${base}-${nombresUsados[base]}.jpg`
+            : `${base}.jpg`;
 
+        const enlace = document.createElement('a');
+        enlace.download = nombreArchivo;
+        let urlTemporal = null;
+
+        try {
             if (img.src.startsWith('data:image')) {
-                const base64Data = img.src.split(',')[1];
-                zip.file(nombreArchivo, base64Data, { base64: true });
+                enlace.href = img.src;
             } else {
                 const respuesta = await fetch(img.src);
                 const blob = await respuesta.blob();
-                zip.file(nombreArchivo, blob);
+                urlTemporal = URL.createObjectURL(blob);
+                enlace.href = urlTemporal;
             }
         } catch (err) {
-            console.error("Error al añadir imagen al zip:", err);
+            enlace.href = img.src;
         }
 
-        procesadas++;
-        const porcentaje = Math.round((procesadas / imagenesADescargar.length) * 80);
-        zipProgressBar.style.width = `${porcentaje}%`;
-        zipProgressText.textContent = `Procesando ${procesadas} de ${imagenesADescargar.length}...`;
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+        if (urlTemporal) setTimeout(() => URL.revokeObjectURL(urlTemporal), 1000);
+
+        // Pausa corta para que el navegador no bloquee las descargas seguidas
+        await new Promise(resolve => setTimeout(resolve, 400));
     }
 
-    zipProgressText.textContent = "Generando archivo comprimido ZIP...";
-    zipProgressBar.style.width = "90%";
-
-    const contenidoZip = await zip.generateAsync({ type: "blob" });
-
-    const enlace = document.createElement('a');
-    enlace.href = URL.createObjectURL(contenidoZip);
-    enlace.download = soloFavoritas ? "mis-paisajes-favoritos.zip" : "galeria-de-paisajes.zip";
-    enlace.click();
-    URL.revokeObjectURL(enlace.href);
-
-    zipProgressBar.style.width = "100%";
-    zipProgressText.textContent = "¡Descarga lista!";
-
-    setTimeout(() => {
-        cerrarModalZip();
-        mostrarToast("¡Archivo ZIP descargado con éxito!");
-    }, 800);
+    mostrarToast("¡Descarga de favoritas completada!");
 }
 
 // ===================================================
@@ -617,11 +582,7 @@ function setupEventListeners() {
     themeToggle.addEventListener('click', cambiarTema);
 
 
-    btnDescargarZip.addEventListener('click', abrirModalZip);
-    zipModalClose.addEventListener('click', cerrarModalZip);
-    zipModalBackdrop.addEventListener('click', cerrarModalZip);
-    btnZipAll.addEventListener('click', () => empaquetarYDescargarZip(false));
-    btnZipFavs.addEventListener('click', () => empaquetarYDescargarZip(true));
+    btnDescargarFavs.addEventListener('click', descargarFavoritas);
 
     searchInput.addEventListener('input', (e) => {
         busquedaActual = e.target.value;
@@ -673,8 +634,6 @@ function setupEventListeners() {
             if (e.key === 'ArrowRight') navegarLightbox(1);
             if (e.key === '+' || e.key === '=') zoomIn();
             if (e.key === '-') zoomOut();
-        } else if (zipModal.classList.contains('open')) {
-            if (e.key === 'Escape') cerrarModalZip();
         }
     });
 }
