@@ -1,262 +1,69 @@
 // ===================================================
-// BASE DE DATOS INICIAL DE IMÁGENES
+// NUBE (SUPABASE): fotos compartidas y estadísticas
 // ===================================================
-const imagenesIniciales = [
-    {
-        id: 1,
-        titulo: "Valle Entre Montañas",
-        categoria: "montanas",
-        categoriaLabel: "Montañas",
-        ubicacion: "Valle de Grindelwald, Suiza",
-        src: "img/paisaje1.jpg",
-        tags: ["montaña", "valle", "verde", "cielo", "colina", "suiza"]
-    },
-    {
-        id: 2,
-        titulo: "Sendero Forestal Otoñal",
-        categoria: "bosques",
-        categoriaLabel: "Bosques",
-        ubicacion: "Selva Negra, Alemania",
-        src: "img/paisaje2.jpg",
-        tags: ["bosque", "arboles", "camino", "naturaleza", "otoño", "alemania"]
-    },
-    {
-        id: 3,
-        titulo: "Aguas Cristalinas de Lago",
-        categoria: "lagos",
-        categoriaLabel: "Lagos y Playas",
-        ubicacion: "Lago Moraine, Canadá",
-        src: "img/paisaje3.jpg",
-        tags: ["lago", "agua", "reflejo", "azul", "tranquilidad", "canada"]
-    },
-    {
-        id: 4,
-        titulo: "Atardecer Dorado en la Costa",
-        categoria: "atardeceres",
-        categoriaLabel: "Atardeceres",
-        ubicacion: "Costa Amalfitana, Italia",
-        src: "img/paisaje4.jpg",
-        tags: ["atardecer", "sol", "playa", "mar", "nubes", "dorado", "italia"]
-    },
-    {
-        id: 5,
-        titulo: "Cascada Escondida en el Bosque",
-        categoria: "bosques",
-        categoriaLabel: "Bosques",
-        ubicacion: "Lagos de Plitvice, Croacia",
-        src: "img/paisaje5.jpg",
-        tags: ["cascada", "agua", "bosque", "rocas", "flujo", "croacia"]
-    },
-    {
-        id: 6,
-        titulo: "Cumbres Nevadas al Crepúsculo",
-        categoria: "montanas",
-        categoriaLabel: "Montañas",
-        ubicacion: "Monte Cervino, Alpes",
-        src: "img/paisaje6.jpg",
-        tags: ["montaña", "nieve", "frio", "cumbres", "alpes", "crepusculo"]
-    },
-    {
-        id: 7,
-        titulo: "Costa Tropical Paradisíaca",
-        categoria: "lagos",
-        categoriaLabel: "Lagos y Playas",
-        ubicacion: "Islas Maldivas",
-        src: "img/paisaje7.jpg",
-        tags: ["playa", "mar", "turquesa", "costa", "arena", "verano", "maldivas"]
-    },
-    {
-        id: 8,
-        titulo: "Dunas al Caer el Sol",
-        categoria: "atardeceres",
-        categoriaLabel: "Atardeceres",
-        ubicacion: "Desierto del Sahara, Marruecos",
-        src: "img/paisaje8.jpg",
-        tags: ["desierto", "dunas", "arena", "atardecer", "calido", "marruecos"]
-    },
-    {
-        id: 9,
-        titulo: "Pradera de Flores Silvestres",
-        categoria: "bosques",
-        categoriaLabel: "Bosques",
-        ubicacion: "Provenza, Francia",
-        src: "img/paisaje9.jpg",
-        tags: ["flores", "campo", "primavera", "color", "hierba", "francia"]
-    },
-    {
-        id: 10,
-        titulo: "Cañón Rocoso Profundo",
-        categoria: "montanas",
-        categoriaLabel: "Montañas",
-        ubicacion: "Gran Cañón, EE. UU.",
-        src: "img/paisaje10.jpg",
-        tags: ["cañon", "roca", "montaña", "geologia", "acantilado"]
-    },
-    {
-        id: 11,
-        titulo: "Bosque de Neblina Mística",
-        categoria: "bosques",
-        categoriaLabel: "Bosques",
-        ubicacion: "Monteverde, Costa Rica",
-        src: "img/paisaje11.jpg",
-        tags: ["niebla", "misterio", "bosque", "arboles", "humedad", "costa rica"]
-    },
-    {
-        id: 12,
-        titulo: "Espejo Natural en Lago Alpino",
-        categoria: "lagos",
-        categoriaLabel: "Lagos y Playas",
-        ubicacion: "Lago di Braies, Italia",
-        src: "img/paisaje12.jpg",
-        tags: ["lago", "reflejo", "montaña", "cielo", "nieve", "italia"]
-    },
-    {
-        id: 13,
-        titulo: "Cumbre Andina Majestuosa",
-        categoria: "montanas",
-        categoriaLabel: "Montañas",
-        ubicacion: "Cordillera de los Andes",
-        src: "img/paisaje13.jpg",
-        tags: ["montaña", "nieve", "sol", "naturaleza", "andes"]
+// Las 13 fotos iniciales (datos.js) se normalizan para usar ids de texto
+const IMAGENES_BASE = imagenesIniciales.map((i) => ({
+    ...i,
+    id: String(i.id),
+    orden: Number(i.id),
+    descargaUrl: i.src
+}));
+
+let fotosNube = [];
+let supa = null;
+try {
+    if (window.supabase && typeof SUPABASE_URL !== 'undefined') {
+        supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
-];
-
-// ===================================================
-// BASE DE DATOS ROBUSTA (IndexedDB) + RESPALDO
-// ===================================================
-const DB_NOMBRE = 'GaleriaPaisajesDB';
-const DB_VERSION = 1;
-const TABLA_FOTOS = 'fotosPersonalizadas';
-
-function conectarBaseDatos() {
-    return new Promise((resolve) => {
-        if (!window.indexedDB) {
-            resolve(null);
-            return;
-        }
-        const solicitud = window.indexedDB.open(DB_NOMBRE, DB_VERSION);
-        solicitud.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains(TABLA_FOTOS)) {
-                db.createObjectStore(TABLA_FOTOS, { keyPath: 'id' });
-            }
-        };
-        solicitud.onsuccess = (e) => resolve(e.target.result);
-        solicitud.onerror = () => resolve(null);
-    });
+} catch (e) {
+    console.warn('No se pudo iniciar Supabase:', e);
 }
 
-async function guardarFotoEnAlmacenamiento(foto) {
-    // 1. Guardar en IndexedDB (sin límite de 5MB)
-    try {
-        const db = await conectarBaseDatos();
-        if (db) {
-            const tx = db.transaction(TABLA_FOTOS, 'readwrite');
-            tx.objectStore(TABLA_FOTOS).put(foto);
-        }
-    } catch (err) {
-        console.warn("Aviso al guardar en IndexedDB:", err);
-    }
-
-    // 2. Respaldo adicional en localStorage con manejo de error
-    try {
-        localStorage.setItem('galeria_fotos_personalizadas', JSON.stringify(fotosPersonalizadas));
-    } catch (e) {
-        // Si supera la cuota de localStorage, IndexedDB ya tiene la foto a salvo
-        console.warn("Nota: Almacenado principal en base de datos permanente.");
-    }
+function filaAFoto(fila) {
+    const nombre = String(fila.titulo || 'foto').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.jpg';
+    return {
+        id: String(fila.id),
+        titulo: fila.titulo,
+        categoria: fila.categoria,
+        categoriaLabel: fila.categoria_label || 'Paisajes',
+        ubicacion: fila.ubicacion || '',
+        src: fila.src,
+        tags: fila.tags || [],
+        orden: Date.parse(fila.created_at) || 0,
+        descargaUrl: fila.src + '?download=' + encodeURIComponent(nombre),
+        esNube: true
+    };
 }
 
-async function cargarFotosGuardadas() {
-    // Intentar leer de IndexedDB
+async function cargarFotosNube() {
+    if (!supa) return [];
     try {
-        const db = await conectarBaseDatos();
-        if (db) {
-            const fotosDB = await new Promise((resolve) => {
-                const tx = db.transaction(TABLA_FOTOS, 'readonly');
-                const store = tx.objectStore(TABLA_FOTOS);
-                const req = store.getAll();
-                req.onsuccess = () => resolve(req.result || []);
-                req.onerror = () => resolve([]);
-            });
-            if (fotosDB && fotosDB.length > 0) {
-                return fotosDB;
-            }
-        }
-    } catch (err) {
-        console.warn("Aviso al leer de IndexedDB:", err);
-    }
-
-    // Respaldo de localStorage
-    try {
-        const datos = localStorage.getItem('galeria_fotos_personalizadas');
-        return datos ? JSON.parse(datos) : [];
+        const { data, error } = await supa
+            .from('fotos')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return (data || []).map(filaAFoto);
     } catch (e) {
+        console.warn('No se pudieron cargar las fotos de la nube:', e);
         return [];
     }
 }
 
-async function eliminarFotoDeAlmacenamiento(id) {
+// Registra una estadística anónima (visita, vista, descarga, compartir, favorito)
+async function registrarEvento(tipo, fotoRef) {
+    if (!supa) return;
     try {
-        const db = await conectarBaseDatos();
-        if (db) {
-            const tx = db.transaction(TABLA_FOTOS, 'readwrite');
-            tx.objectStore(TABLA_FOTOS).delete(id);
-        }
-    } catch (err) {}
-
-    try {
-        localStorage.setItem('galeria_fotos_personalizadas', JSON.stringify(fotosPersonalizadas));
-    } catch (e) {}
-}
-
-// ===================================================
-// OPTIMIZADOR AUTOMÁTICO DE IMÁGENES
-// ===================================================
-// Reduce fotos gigantes a un tamaño ligero Full HD para que nunca fallen
-function optimizarImagen(archivo) {
-    return new Promise((resolve, reject) => {
-        const lector = new FileReader();
-        lector.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let ancho = img.width;
-                let alto = img.height;
-                const limiteMaximo = 1920; // Resolución Full HD
-
-                if (ancho > limiteMaximo || alto > limiteMaximo) {
-                    if (ancho > alto) {
-                        alto = Math.round((alto * limiteMaximo) / ancho);
-                        ancho = limiteMaximo;
-                    } else {
-                        ancho = Math.round((ancho * limiteMaximo) / alto);
-                        alto = limiteMaximo;
-                    }
-                }
-
-                canvas.width = ancho;
-                canvas.height = alto;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, ancho, alto);
-
-                // Exportar como JPEG optimizado al 84% de calidad
-                const imagenComprimida = canvas.toDataURL('image/jpeg', 0.84);
-                resolve(imagenComprimida);
-            };
-            img.onerror = () => reject(new Error("Error al procesar la imagen"));
-            img.src = e.target.result;
-        };
-        lector.onerror = () => reject(new Error("Error al leer el archivo"));
-        lector.readAsDataURL(archivo);
-    });
+        const { data } = await supa.auth.getSession();
+        if (data && data.session) return; // no contar las acciones del administrador
+        await supa.from('eventos').insert({ tipo: tipo, foto_ref: fotoRef ? String(fotoRef) : null });
+    } catch (e) { /* las estadísticas nunca deben romper la galería */ }
 }
 
 // ===================================================
 // ESTADO DE LA APLICACIÓN
 // ===================================================
-let fotosPersonalizadas = [];
-let favoritos = JSON.parse(localStorage.getItem('galeria_favoritos') || '[]');
+let favoritos = JSON.parse(localStorage.getItem('galeria_favoritos') || '[]').map(String);
 let categoriaActual = 'todos';
 let busquedaActual = '';
 let ordenActual = 'predeterminado';
@@ -288,7 +95,6 @@ const favCountBadge = document.getElementById('favCount');
 const themeToggle = document.getElementById('themeToggle');
 const themeIconSun = document.getElementById('themeIconSun');
 const themeIconMoon = document.getElementById('themeIconMoon');
-const btnAbrirSubir = document.getElementById('btnAbrirSubir');
 const btnDescargarZip = document.getElementById('btnDescargarZip');
 const toastContainer = document.getElementById('toastContainer');
 
@@ -315,25 +121,6 @@ const zoomOutBtn = document.getElementById('zoomOutBtn');
 const zoomResetBtn = document.getElementById('zoomResetBtn');
 const zoomLevelSpan = document.getElementById('zoomLevel');
 
-// Modal de Subir Foto
-const uploadModal = document.getElementById('uploadModal');
-const uploadModalBackdrop = document.getElementById('uploadModalBackdrop');
-const uploadModalClose = document.getElementById('uploadModalClose');
-const btnCancelUpload = document.getElementById('btnCancelUpload');
-const uploadForm = document.getElementById('uploadForm');
-const dropzone = document.getElementById('dropzone');
-const fileInput = document.getElementById('fileInput');
-const dropzonePrompt = document.getElementById('dropzonePrompt');
-const dropzonePreview = document.getElementById('dropzonePreview');
-const previewImg = document.getElementById('previewImg');
-const btnRemovePreview = document.getElementById('btnRemovePreview');
-const inputTitulo = document.getElementById('inputTitulo');
-const inputCategoria = document.getElementById('inputCategoria');
-const inputUbicacion = document.getElementById('inputUbicacion');
-const inputEtiquetas = document.getElementById('inputEtiquetas');
-
-let imagenSubidaBase64 = null;
-
 // Modal de Descarga ZIP
 const zipModal = document.getElementById('zipModal');
 const zipModalBackdrop = document.getElementById('zipModalBackdrop');
@@ -351,16 +138,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     inicializarTema();
     inicializarVista();
 
-    // Cargar fotos guardadas desde la base de datos persistente
-    fotosPersonalizadas = await cargarFotosGuardadas();
-
+    // Primero se muestran las fotos iniciales, sin esperar a la nube
     actualizarContadores();
     renderizarGaleria();
     setupEventListeners();
+
+    // Una visita por sesión del navegador
+    try {
+        if (!sessionStorage.getItem('galeria_visita')) {
+            sessionStorage.setItem('galeria_visita', '1');
+            registrarEvento('visita', null);
+        }
+    } catch (e) {}
+
+    // Después se cargan las fotos que subió el administrador
+    fotosNube = await cargarFotosNube();
+    if (fotosNube.length > 0) {
+        actualizarContadores();
+        renderizarGaleria();
+    }
 });
 
 function obtenerTodasLasImagenes() {
-    return [...imagenesIniciales, ...fotosPersonalizadas];
+    return [...fotosNube, ...IMAGENES_BASE];
 }
 
 // ===================================================
@@ -393,7 +193,7 @@ function renderizarGaleria() {
     } else if (ordenActual === 'nombre-desc') {
         imagenesFiltradas.sort((a, b) => b.titulo.localeCompare(a.titulo));
     } else if (ordenActual === 'recientes') {
-        imagenesFiltradas.sort((a, b) => b.id - a.id);
+        imagenesFiltradas.sort((a, b) => (b.orden || 0) - (a.orden || 0));
     }
 
     // 3. Render en pantalla
@@ -426,13 +226,12 @@ function renderizarGaleria() {
         card.innerHTML = `
             <div class="img-wrapper" onclick="abrirLightbox(${index})">
                 <img src="${img.src}" alt="${img.titulo}" loading="lazy">
-                <button class="fav-btn ${esFav ? 'active' : ''}" onclick="toggleFavorito(event, ${img.id})" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}">
+                <button class="fav-btn ${esFav ? 'active' : ''}" onclick="toggleFavorito(event, '${img.id}')" title="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="${esFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                     </svg>
                 </button>
                 <span class="category-badge">${img.categoriaLabel}</span>
-                ${img.esPersonalizada ? '<span class="custom-badge">Subida</span>' : ''}
             </div>
             <div class="tarjeta-body">
                 <div>
@@ -448,13 +247,13 @@ function renderizarGaleria() {
                     ` : ''}
                 </div>
                 <div class="botones">
-                    <a href="${img.src}" download="${img.titulo.toLowerCase().replace(/\s+/g, '-')}.jpg" class="btn btn-primary" title="Descargar imagen">
+                    <a href="${img.descargaUrl || img.src}" download="${img.titulo.toLowerCase().replace(/\s+/g, '-')}.jpg" onclick="registrarEvento('descarga', '${img.id}')" class="btn btn-primary" title="Descargar imagen">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
                         </svg>
                         Descargar
                     </a>
-                    <button class="btn btn-secondary" onclick="compartirImagen('${img.src}', '${img.titulo}')" title="Compartir enlace">
+                    <button class="btn btn-secondary" onclick="compartirImagen('${img.src}', '${String(img.titulo).replace(/'/g, "\\'")}', '${img.id}')" title="Compartir enlace">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/>
                         </svg>
@@ -480,6 +279,7 @@ function toggleFavorito(event, id) {
     } else {
         favoritos.push(id);
         mostrarToast("Añadido a tus favoritos ❤️");
+        registrarEvento('favorito', id);
     }
 
     try {
@@ -534,23 +334,21 @@ function abrirLightbox(index) {
     }
 
     // Configurar descarga
-    modalDownloadBtn.href = imgData.src;
+    modalDownloadBtn.href = imgData.descargaUrl || imgData.src;
+    modalDownloadBtn.onclick = () => registrarEvento('descarga', imgData.id);
     modalDownloadBtn.download = `${imgData.titulo.toLowerCase().replace(/\s+/g, '-')}.jpg`;
 
     // Configurar compartir
-    modalShareBtn.onclick = () => compartirImagen(imgData.src, imgData.titulo);
+    modalShareBtn.onclick = () => compartirImagen(imgData.src, imgData.titulo, imgData.id);
 
     // Configurar favorito
     actualizarBotonModalFav(favoritos.includes(imgData.id));
     modalFavBtn.onclick = () => toggleFavorito(null, imgData.id);
 
-    // Botón eliminar si es foto personalizada
-    if (imgData.esPersonalizada) {
-        modalDeleteBtn.style.display = 'inline-flex';
-        modalDeleteBtn.onclick = () => eliminarFotoPersonalizada(imgData.id);
-    } else {
-        modalDeleteBtn.style.display = 'none';
-    }
+    // Eliminar fotos solo se puede desde el panel de administrador
+    modalDeleteBtn.style.display = 'none';
+
+    registrarEvento('vista', imgData.id);
 
     lightboxModal.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -633,147 +431,6 @@ modalImgContainer.addEventListener('wheel', (e) => {
         zoomOut();
     }
 }, { passive: false });
-
-// ===================================================
-// SUBIR FOTOGRAFÍAS (OPTIMIZACIÓN Y GUARDADO PERMANENTE)
-// ===================================================
-function abrirModalSubir() {
-    uploadModal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-}
-
-function cerrarModalSubir() {
-    uploadModal.classList.remove('open');
-    document.body.style.overflow = '';
-    limpiarFormularioSubir();
-}
-
-function limpiarFormularioSubir() {
-    uploadForm.reset();
-    imagenSubidaBase64 = null;
-    dropzonePrompt.style.display = 'block';
-    dropzonePreview.style.display = 'none';
-    previewImg.src = '';
-}
-
-async function procesarArchivoSeleccionado(archivo) {
-    if (!archivo || !archivo.type.startsWith('image/')) {
-        mostrarToast("Por favor selecciona un archivo de imagen válido");
-        return;
-    }
-
-    mostrarToast("Preparando y optimizando imagen...");
-
-    try {
-        // Optimiza la imagen en el cliente para que pese poco y nunca se borre
-        imagenSubidaBase64 = await optimizarImagen(archivo);
-        previewImg.src = imagenSubidaBase64;
-        dropzonePrompt.style.display = 'none';
-        dropzonePreview.style.display = 'block';
-
-        if (!inputTitulo.value) {
-            const nombreSinExtension = archivo.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
-            inputTitulo.value = nombreSinExtension.charAt(0).toUpperCase() + nombreSinExtension.slice(1);
-        }
-    } catch (err) {
-        mostrarToast("No se pudo procesar la imagen seleccionada");
-    }
-}
-
-dropzone.addEventListener('click', (e) => {
-    if (e.target !== btnRemovePreview) fileInput.click();
-});
-
-fileInput.addEventListener('change', (e) => {
-    if (e.target.files && e.target.files[0]) {
-        procesarArchivoSeleccionado(e.target.files[0]);
-    }
-});
-
-btnRemovePreview.addEventListener('click', (e) => {
-    e.stopPropagation();
-    limpiarFormularioSubir();
-});
-
-dropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropzone.classList.add('dragover');
-});
-
-dropzone.addEventListener('dragleave', () => {
-    dropzone.classList.remove('dragover');
-});
-
-dropzone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropzone.classList.remove('dragover');
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        procesarArchivoSeleccionado(e.dataTransfer.files[0]);
-    }
-});
-
-// Guardar nueva imagen de forma permanente
-uploadForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (!imagenSubidaBase64) {
-        mostrarToast("Debes seleccionar o arrastrar una imagen");
-        return;
-    }
-
-    const etiquetasArray = inputEtiquetas.value
-        .split(',')
-        .map(t => t.trim().toLowerCase())
-        .filter(t => t.length > 0);
-
-    const categoriasNombres = {
-        montanas: "Montañas",
-        bosques: "Bosques",
-        lagos: "Lagos y Playas",
-        atardeceres: "Atardeceres"
-    };
-
-    const nuevaImagen = {
-        id: Date.now(),
-        titulo: inputTitulo.value.trim(),
-        categoria: inputCategoria.value,
-        categoriaLabel: categoriasNombres[inputCategoria.value] || "Paisajes",
-        ubicacion: inputUbicacion.value.trim(),
-        src: imagenSubidaBase64,
-        tags: etiquetasArray,
-        esPersonalizada: true,
-        fecha: new Date().toISOString()
-    };
-
-    fotosPersonalizadas.unshift(nuevaImagen);
-
-    // Guardado persistente garantizado
-    await guardarFotoEnAlmacenamiento(nuevaImagen);
-
-    mostrarToast("¡Fotografía guardada permanentemente! 🎉");
-    cerrarModalSubir();
-    actualizarContadores();
-    renderizarGaleria();
-});
-
-// Eliminar foto personalizada
-async function eliminarFotoPersonalizada(id) {
-    if (confirm("¿Estás seguro de que deseas eliminar esta fotografía de tu galería?")) {
-        fotosPersonalizadas = fotosPersonalizadas.filter(f => f.id !== id);
-        favoritos = favoritos.filter(favId => favId !== id);
-
-        await eliminarFotoDeAlmacenamiento(id);
-
-        try {
-            localStorage.setItem('galeria_favoritos', JSON.stringify(favoritos));
-        } catch (e) {}
-
-        cerrarLightbox();
-        actualizarContadores();
-        renderizarGaleria();
-        mostrarToast("Fotografía eliminada");
-    }
-}
 
 // ===================================================
 // DESCARGA EN ZIP (JSZip)
@@ -878,7 +535,8 @@ function cambiarVista(nuevaVista) {
 // ===================================================
 // COMPARTIR (WEB SHARE API + FALLBACK)
 // ===================================================
-async function compartirImagen(ruta, titulo) {
+async function compartirImagen(ruta, titulo, id) {
+    registrarEvento('compartir', id);
     const url = new URL(ruta, location.href).href;
     
     if (navigator.share) {
@@ -958,10 +616,6 @@ function actualizarIconoTema(tema) {
 function setupEventListeners() {
     themeToggle.addEventListener('click', cambiarTema);
 
-    btnAbrirSubir.addEventListener('click', abrirModalSubir);
-    uploadModalClose.addEventListener('click', cerrarModalSubir);
-    uploadModalBackdrop.addEventListener('click', cerrarModalSubir);
-    btnCancelUpload.addEventListener('click', cerrarModalSubir);
 
     btnDescargarZip.addEventListener('click', abrirModalZip);
     zipModalClose.addEventListener('click', cerrarModalZip);
@@ -1019,8 +673,6 @@ function setupEventListeners() {
             if (e.key === 'ArrowRight') navegarLightbox(1);
             if (e.key === '+' || e.key === '=') zoomIn();
             if (e.key === '-') zoomOut();
-        } else if (uploadModal.classList.contains('open')) {
-            if (e.key === 'Escape') cerrarModalSubir();
         } else if (zipModal.classList.contains('open')) {
             if (e.key === 'Escape') cerrarModalZip();
         }

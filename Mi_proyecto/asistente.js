@@ -1,4 +1,7 @@
-
+// ===================================================
+// ASISTENTE DE LA GALERÍA (gratis, sin servidor ni API)
+// Busca en tus fotos por título, ubicación, categoría y etiquetas.
+// ===================================================
 
 const ASIST_IGNORAR = new Set([
     'quiero', 'quisiera', 'una', 'un', 'unos', 'unas', 'el', 'la', 'los', 'las', 'de', 'del', 'en', 'con',
@@ -8,7 +11,7 @@ const ASIST_IGNORAR = new Set([
     'mostrar', 'tengas', 'alguna', 'alguno', 'sobre', 'como', 'es', 'son', 'lo', 'le', 'se', 'si', 'mi'
 ]);
 
-
+// Palabras relacionadas: si pides "playa", también encuentra "costa", "mar", etc.
 const ASIST_SINONIMOS = {
     playa: ['costa', 'mar', 'arena', 'turquesa'],
     mar: ['playa', 'costa', 'oceano'],
@@ -36,7 +39,7 @@ const ASIST_SINONIMOS = {
     otono: ['bosque', 'sendero', 'camino']
 };
 
-
+// Quita tildes, pasa a minúsculas y simplifica plurales: "Montañas" -> "montana"
 function asistNormalizar(palabra) {
     let p = String(palabra).toLowerCase()
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -61,10 +64,10 @@ function asistCoincide(palabraCampo, buscada) {
     return false;
 }
 
-
+// Devuelve las fotos que mejor coinciden con lo que escribió la persona
 function asistBuscarFotos(consulta, fotos) {
     const buscadas = asistPalabras(consulta).filter((p) => !ASIST_IGNORAR.has(p));
-    if (buscadas.length === 0) return null; 
+    if (buscadas.length === 0) return null; // no pidió nada concreto
 
     const resultados = fotos.map((foto) => {
         const campos = [
@@ -75,12 +78,12 @@ function asistBuscarFotos(consulta, fotos) {
         ];
         let puntos = 0;
         for (const buscada of buscadas) {
-            
+            // Coincidencia directa
             let mejor = 0;
             for (const c of campos) {
                 if (c.pal.some((w) => asistCoincide(w, buscada))) mejor = Math.max(mejor, c.peso);
             }
-            
+            // Coincidencia por sinónimo (vale menos)
             if (mejor === 0) {
                 const sinonimos = ASIST_SINONIMOS[buscada] || [];
                 for (const s of sinonimos) {
@@ -95,7 +98,7 @@ function asistBuscarFotos(consulta, fotos) {
     });
 
     const mejor = Math.max(0, ...resultados.map((r) => r.puntos));
-    
+    // Solo se muestran las que se acercan a la mejor coincidencia
     return resultados
         .filter((r) => r.puntos > 0 && r.puntos >= mejor / 2)
         .sort((a, b) => b.puntos - a.puntos)
@@ -105,7 +108,9 @@ function asistBuscarFotos(consulta, fotos) {
 
 if (typeof module !== 'undefined') module.exports = { asistBuscarFotos };
 
-
+// ---------------------------------------------------
+// Interfaz del chat (solo en el navegador)
+// ---------------------------------------------------
 if (typeof document !== 'undefined') (function () {
     const btn = document.createElement('button');
     btn.textContent = '💬';
@@ -148,11 +153,11 @@ if (typeof document !== 'undefined') (function () {
         }
     };
 
-    
+    // Abre una foto en el visor grande
     function abrirFoto(id) {
         let i = imagenesFiltradas.findIndex((f) => f.id === id);
         if (i === -1) {
-            
+            // Está oculta por un filtro o búsqueda: los quitamos
             categoriaActual = 'todos';
             busquedaActual = '';
             searchInput.value = '';

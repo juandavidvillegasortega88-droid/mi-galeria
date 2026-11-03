@@ -29,15 +29,6 @@
 
             <!-- Acciones Rápidas en Cabecera -->
             <div class="header-actions">
-                <!-- Botón Añadir Imagen -->
-                <button id="btnAbrirSubir" class="btn btn-accent" title="Añadir nueva fotografía">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    <span>Subir Foto</span>
-                </button>
-
                 <!-- Botón Descargar en ZIP -->
                 <button id="btnDescargarZip" class="btn btn-secondary" title="Descargar colección en archivo ZIP">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -236,75 +227,6 @@
     </div>
 
     <!-- ===================================================
-         MODAL: AÑADIR NUEVA FOTO (SIN TOCAR CÓDIGO)
-    =================================================== -->
-    <div id="uploadModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="modal-backdrop" id="uploadModalBackdrop"></div>
-        <div class="upload-modal-wrapper">
-            <div class="upload-modal-card">
-                <div class="upload-header">
-                    <h2>Subir Nueva Fotografía</h2>
-                    <button class="modal-close-simple" id="uploadModalClose">&times;</button>
-                </div>
-                <p class="upload-sub">Añade imágenes a tu galería al instante sin editar ningún archivo.</p>
-
-                <form id="uploadForm" class="upload-form">
-                    <!-- Zona para arrastrar o seleccionar archivo -->
-                    <div class="dropzone" id="dropzone">
-                        <input type="file" id="fileInput" accept="image/*" class="file-input-hidden">
-                        <div id="dropzonePrompt" class="dropzone-prompt">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            <p><strong>Haz clic aquí</strong> o arrastra una imagen</p>
-                            <span>Formatos: JPG, PNG, WEBP</span>
-                        </div>
-                        <div id="dropzonePreview" class="dropzone-preview" style="display: none;">
-                            <img id="previewImg" src="" alt="Previsualización">
-                            <button type="button" id="btnRemovePreview" class="btn-remove-preview" title="Quitar imagen">&times;</button>
-                        </div>
-                    </div>
-
-                    <!-- Campos del formulario -->
-                    <div class="form-group">
-                        <label for="inputTitulo">Título de la fotografía *</label>
-                        <input type="text" id="inputTitulo" placeholder="Ej: Amanecer en las Colinas" required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="inputCategoria">Categoría *</label>
-                            <select id="inputCategoria" required>
-                                <option value="montanas">Montañas</option>
-                                <option value="bosques">Bosques</option>
-                                <option value="lagos">Lagos y Playas</option>
-                                <option value="atardeceres">Atardeceres</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="inputUbicacion">Ubicación (Opcional)</label>
-                            <input type="text" id="inputUbicacion" placeholder="Ej: Alpes Suizos, Bariloche...">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="inputEtiquetas">Palabras clave para el buscador</label>
-                        <input type="text" id="inputEtiquetas" placeholder="Separadas por comas (ej: nieve, sol, cielo, montaña)">
-                    </div>
-
-                    <div class="upload-buttons">
-                        <button type="button" class="btn btn-secondary" id="btnCancelUpload">Cancelar</button>
-                        <button type="submit" class="btn btn-primary" id="btnSubmitUpload">Guardar en la Galería</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===================================================
          MODAL: DESCARGAR COLECCIÓN EN ZIP
     =================================================== -->
     <div id="zipModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
@@ -349,6 +271,9 @@
 
     <!-- Librería JSZip para generar archivos comprimidos en el navegador -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+    <script src="config.js"></script>
+    <script src="datos.js"></script>
     <script src="script.js"></script>
     <script src="asistente.js"></script>
 </body>
