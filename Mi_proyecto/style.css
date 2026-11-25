@@ -1,6 +1,4 @@
-/* ===================================================
-   VARIABLES DE TEMA (MODO CLARO Y OSCURO)
-=================================================== */
+
 :root {
     --bg-page: #f8fafc;
     --bg-card: #ffffff;
@@ -53,9 +51,7 @@
     --shadow-hover: 0 20px 30px rgba(0, 0, 0, 0.7);
 }
 
-/* ===================================================
-   RESET & ESTILOS BASE
-=================================================== */
+
 * {
     margin: 0;
     padding: 0;
@@ -83,9 +79,7 @@ body {
     border: 0;
 }
 
-/* ===================================================
-   HEADER & ACCIONES RÁPIDAS
-=================================================== */
+
 .header {
     background-color: var(--bg-header);
     backdrop-filter: blur(12px);
@@ -186,9 +180,7 @@ body {
     box-shadow: var(--shadow-md);
 }
 
-/* ===================================================
-   BARRA DE CONTROLES: BÚSQUEDA, ORDEN Y VISTAS
-=================================================== */
+
 .main-content {
     max-width: 1320px;
     margin: 0 auto;
@@ -267,7 +259,7 @@ body {
     gap: 12px;
 }
 
-/* Selector estilizado */
+
 .select-wrapper {
     position: relative;
 }
@@ -295,7 +287,7 @@ body {
     border-color: var(--primary);
 }
 
-/* Botones de Vista (Normal, Compacta, Mosaico) */
+
 .view-toggles {
     display: inline-flex;
     background: var(--bg-card);
@@ -327,7 +319,7 @@ body {
     color: #ffffff;
 }
 
-/* Filtros por Categoría */
+
 .filter-chips {
     display: flex;
     flex-wrap: wrap;
@@ -370,9 +362,7 @@ body {
     color: #ffffff;
 }
 
-/* ===================================================
-   GRID DE LA GALERÍA Y SUS VARIANTES DE VISTA
-=================================================== */
+
 .gallery-status {
     text-align: center;
     padding: 50px 20px;
@@ -381,14 +371,14 @@ body {
     display: none;
 }
 
-/* 1. Vista Normal */
+
 .galeria.vista-normal {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
     gap: 24px;
 }
 
-/* 2. Vista Compacta */
+
 .galeria.vista-compacta {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -411,7 +401,7 @@ body {
     display: none;
 }
 
-/* 3. Vista Mosaico / Mural */
+
 .galeria.vista-mosaico {
     display: block;
     column-count: 3;
@@ -430,7 +420,7 @@ body {
     max-height: 480px;
 }
 
-/* Tarjeta individual */
+
 .tarjeta {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -449,7 +439,7 @@ body {
     border-color: var(--border-hover);
 }
 
-/* Imagen y contenedor */
+
 .img-wrapper {
     position: relative;
     width: 100%;
@@ -471,7 +461,7 @@ body {
     transform: scale(1.06);
 }
 
-/* Botón flotante de favoritos */
+
 .fav-btn {
     position: absolute;
     top: 12px;
@@ -505,7 +495,7 @@ body {
     fill: var(--heart-color);
 }
 
-/* Insignias sobre la foto */
+
 .category-badge {
     position: absolute;
     bottom: 12px;
@@ -535,7 +525,7 @@ body {
     text-transform: uppercase;
 }
 
-/* Cuerpo de la tarjeta */
+
 .tarjeta-body {
     padding: 16px 18px;
     display: flex;
@@ -562,7 +552,7 @@ body {
     color: var(--text-secondary);
 }
 
-/* Botones de acción */
+
 .botones {
     display: flex;
     align-items: center;
@@ -638,9 +628,7 @@ body {
     border-color: var(--danger) !important;
 }
 
-/* ===================================================
-   MODAL / VISOR A PANTALLA COMPLETA CON ZOOM
-=================================================== */
+
 .modal {
     position: fixed;
     inset: 0;
@@ -712,7 +700,7 @@ body {
     transform-origin: center center;
 }
 
-/* Controles de Zoom Flotantes */
+
 .zoom-controls {
     position: absolute;
     bottom: 14px;
@@ -850,9 +838,7 @@ body {
 .modal-prev { left: -65px; }
 .modal-next { right: -65px; }
 
-/* ===================================================
-   MODAL DE SUBIR FOTO Y MODAL ZIP
-=================================================== */
+
 .upload-modal-wrapper {
     position: relative;
     max-width: 540px;
@@ -900,7 +886,7 @@ body {
     color: var(--text-primary);
 }
 
-/* Zona de arrastre de imagen */
+
 .dropzone {
     border: 2px dashed var(--border-hover);
     border-radius: var(--radius-md);
@@ -969,7 +955,7 @@ body {
     justify-content: center;
 }
 
-/* Campos de Formulario */
+
 .upload-form {
     display: flex;
     flex-direction: column;
@@ -1019,7 +1005,7 @@ body {
     margin-top: 10px;
 }
 
-/* Opciones de Descarga ZIP */
+
 .zip-options {
     display: flex;
     flex-direction: column;
@@ -1087,9 +1073,7 @@ body {
     color: var(--text-secondary);
 }
 
-/* ===================================================
-   SISTEMA DE TOASTS
-=================================================== */
+
 .toast-container {
     position: fixed;
     bottom: 24px;
@@ -1125,9 +1109,7 @@ body {
     to { transform: translateY(20px); opacity: 0; }
 }
 
-/* ===================================================
-   RESPONSIVE DESIGN (MÓVIL Y TABLET)
-=================================================== */
+
 @media (max-width: 900px) {
     .galeria.vista-mosaico {
         column-count: 2;
@@ -1192,7 +1174,7 @@ body {
 }
 
 
-/* Barra de descarga (solo visible en Favoritos) */
+
 .fav-toolbar {
     display: flex;
     align-items: center;
@@ -1209,9 +1191,7 @@ body {
     width: auto;
 }
 
-/* ===================================================
-   ADMINISTRADOR: botones, pestañas y panel
-=================================================== */
+
 .btn-admin-toggle:hover { color: var(--primary); border-color: var(--primary); }
 .btn-logout { border-color: rgba(220, 38, 38, 0.3) !important; color: var(--danger) !important; }
 .btn-logout:hover { background: rgba(220, 38, 38, 0.1) !important; border-color: var(--danger) !important; }
@@ -1251,7 +1231,7 @@ body {
     padding: 8px 0;
 }
 
-/* Acciones sobre las tarjetas */
+
 .admin-card-actions {
     position: absolute;
     top: 10px;
@@ -1278,7 +1258,7 @@ body {
 .btn-card-admin:hover { transform: scale(1.15); background: #ffffff; }
 .btn-card-delete:hover { background: #fee2e2 !important; }
 
-/* Login */
+
 .password-wrapper { position: relative; display: flex; align-items: center; }
 .password-wrapper input { width: 100%; padding-right: 44px; }
 .btn-toggle-pass {
@@ -1317,7 +1297,7 @@ body {
 }
 button[disabled] { opacity: 0.6; cursor: wait; }
 
-/* Panel */
+
 .admin-view { gap: 20px; }
 .admin-head {
     display: flex;
@@ -1424,7 +1404,7 @@ button[disabled] { opacity: 0.6; cursor: wait; }
 
 .admin-view > * + * { margin-top: 20px; }
 
-/* ===== Gestión de categorías (panel) ===== */
+
 .cat-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
 .cat-form input { flex: 1 1 220px; padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font: inherit; }
 .cat-fila { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
@@ -1432,21 +1412,61 @@ button[disabled] { opacity: 0.6; cursor: wait; }
 .cat-nombre { flex: 1 1 140px; font-weight: 600; }
 .cat-n { color: var(--text-secondary); font-size: 0.85rem; min-width: 70px; }
 
-/* ===== Ventanas (subir, editar, login): nunca más altas que la pantalla ===== */
+
 .upload-modal-card {
     max-height: calc(100vh - 32px);
     overflow-y: auto;
 }
 
-/* ===== Visor: la tarjeta toma exactamente el tamaño de la foto (sin fondo negro) ===== */
-.modal-content { width: fit-content; min-width: min(260px, 92vw); max-width: min(900px, 92vw); }
+
+.modal-content { width: fit-content; min-width: min(200px, 92vw); max-width: min(900px, 92vw); }
 .modal-img-container { width: auto; min-height: 0; background: var(--bg-card); }
 .modal-img-container img {
     display: block; width: auto; height: auto; max-width: 100%; margin: 0 auto;
     max-height: min(68vh, calc(100vh - 220px));
 }
-/* La barra de información no ensancha la tarjeta: se ajusta al ancho de la foto */
+
 .modal-info { flex-wrap: wrap; width: 0; min-width: 100%; box-sizing: border-box; }
 .modal-actions { flex-wrap: wrap; }
-/* El botón de cerrar va sobre la foto para que nunca se salga de la pantalla */
+
 .modal-close { top: 10px; right: 10px; z-index: 30; background: rgba(0, 0, 0, 0.45); }
+
+
+
+
+@media (min-width: 768px) and (min-aspect-ratio: 1/1) {
+    .modal-content[data-forma="vertical"],
+    .modal-content[data-forma="muy-alta"] { flex-direction: row; max-width: min(980px, 94vw); }
+    .modal-content[data-forma="vertical"] .modal-img-container,
+    .modal-content[data-forma="muy-alta"] .modal-img-container { flex: 0 0 auto; max-height: none; }
+    .modal-content[data-forma="vertical"] .modal-img-container img,
+    .modal-content[data-forma="muy-alta"] .modal-img-container img { max-height: calc(100vh - 80px); max-width: 62vw; }
+    .modal-content[data-forma="vertical"] .modal-info,
+    .modal-content[data-forma="muy-alta"] .modal-info {
+        flex: 0 0 270px; width: 270px; min-width: 270px; flex-direction: column; align-items: stretch;
+        justify-content: flex-end; gap: 16px; padding: 56px 20px 20px;
+        border-top: none; border-left: 1px solid var(--border-color);
+        max-height: calc(100vh - 80px); overflow-y: auto;
+    }
+    .modal-content[data-forma="vertical"] .modal-actions,
+    .modal-content[data-forma="muy-alta"] .modal-actions { flex-direction: column; align-items: stretch; }
+    .modal-content[data-forma="vertical"] .modal-actions .btn,
+    .modal-content[data-forma="muy-alta"] .modal-actions .btn { width: 100%; justify-content: center; }
+    .modal-content[data-forma="vertical"] .modal-actions .btn-icon,
+    .modal-content[data-forma="muy-alta"] .modal-actions .btn-icon { width: 100%; }
+}
+
+
+@media (max-width: 767px) {
+    .modal-content[data-forma="vertical"] .modal-img-container img,
+    .modal-content[data-forma="muy-alta"] .modal-img-container img {
+        max-height: calc(100vh - 190px);
+        max-height: calc(100dvh - 190px);
+    }
+    .modal-content[data-forma="vertical"] .modal-info,
+    .modal-content[data-forma="muy-alta"] .modal-info { padding: 10px 14px; gap: 8px; }
+    .modal-content[data-forma="vertical"] .modal-text h3,
+    .modal-content[data-forma="muy-alta"] .modal-text h3 { font-size: 1rem; }
+    .modal-content[data-forma="vertical"] .modal-actions .btn,
+    .modal-content[data-forma="muy-alta"] .modal-actions .btn { font-size: 0; gap: 0; padding: 9px 14px; }
+}
