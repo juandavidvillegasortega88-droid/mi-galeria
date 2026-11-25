@@ -1431,3 +1431,9 @@ button[disabled] { opacity: 0.6; cursor: wait; }
 .cat-fila:last-child { border-bottom: none; }
 .cat-nombre { flex: 1 1 140px; font-weight: 600; }
 .cat-n { color: var(--text-secondary); font-size: 0.85rem; min-width: 70px; }
+
+/* ===== Ventanas (subir, editar, login): nunca más altas que la pantalla ===== */
+.upload-modal-card {
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+}
