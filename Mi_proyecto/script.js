@@ -1,7 +1,4 @@
-// ===================================================
-// NUBE (SUPABASE): fotos compartidas y estadísticas
-// ===================================================
-// Las 13 fotos iniciales (datos.js) se normalizan para usar ids de texto
+
 const IMAGENES_BASE = imagenesIniciales.map((i) => ({
     ...i,
     id: String(i.id),
@@ -54,7 +51,7 @@ async function cargarFotosNube() {
     }
 }
 
-// Registra una estadística anónima (visita, vista, descarga, compartir, favorito)
+
 async function registrarEvento(tipo, fotoRef) {
     if (!supa) return;
     try {
@@ -64,9 +61,7 @@ async function registrarEvento(tipo, fotoRef) {
     } catch (e) { /* las estadísticas nunca deben romper la galería */ }
 }
 
-// ===================================================
-// ESTADO DE LA APLICACIÓN
-// ===================================================
+
 let favoritos = JSON.parse(localStorage.getItem('galeria_favoritos') || '[]').map(String);
 let categoriaActual = 'todos';
 let busquedaActual = '';
@@ -76,7 +71,7 @@ let vistaActual = localStorage.getItem('galeria_vista') || 'normal';
 let imagenModalActualIndex = 0;
 let imagenesFiltradas = [];
 
-// Estado de Zoom
+
 let zoomActual = 1;
 let isPanning = false;
 let startX = 0;
@@ -84,7 +79,7 @@ let startY = 0;
 let currentTranslateX = 0;
 let currentTranslateY = 0;
 
-// Referencias del DOM
+
 const galleryGrid = document.getElementById('galleryGrid');
 const galleryStatus = document.getElementById('galleryStatus');
 const searchInput = document.getElementById('searchInput');
@@ -95,7 +90,7 @@ const viewBtns = document.querySelectorAll('.view-btn');
 const totalCountSpan = document.getElementById('totalCount');
 const favCountBadge = document.getElementById('favCount');
 
-// Botones de Cabecera
+
 const themeToggle = document.getElementById('themeToggle');
 const themeIconSun = document.getElementById('themeIconSun');
 const themeIconMoon = document.getElementById('themeIconMoon');
@@ -116,12 +111,21 @@ const favToolbar = document.getElementById('favToolbar');
 const btnDescargarFavs = document.getElementById('btnDescargarFavs');
 const toastContainer = document.getElementById('toastContainer');
 
-// Referencias del Visor (Lightbox)
+
 const lightboxModal = document.getElementById('lightboxModal');
 const modalBackdrop = document.getElementById('modalBackdrop');
 const modalClose = document.getElementById('modalClose');
 const modalImgContainer = document.getElementById('modalImgContainer');
 const modalImg = document.getElementById('modalImg');
+
+
+function adaptarVisorAFoto() {
+    const caja = document.querySelector('.modal-content');
+    if (!caja || !modalImg.naturalWidth) return;
+    const r = modalImg.naturalWidth / modalImg.naturalHeight;
+    caja.dataset.forma = r < 0.6 ? 'muy-alta' : r < 0.9 ? 'vertical' : r <= 1.15 ? 'cuadrada' : 'horizontal';
+}
+modalImg.addEventListener('load', adaptarVisorAFoto);
 const modalTitle = document.getElementById('modalTitle');
 const modalCategory = document.getElementById('modalCategory');
 const modalLocation = document.getElementById('modalLocation');
@@ -134,13 +138,13 @@ const modalShareBtn = document.getElementById('modalShareBtn');
 const modalEditBtn = document.getElementById('modalEditBtn');
 const modalDeleteBtn = document.getElementById('modalDeleteBtn');
 
-// Controles de Zoom
+
 const zoomInBtn = document.getElementById('zoomInBtn');
 const zoomOutBtn = document.getElementById('zoomOutBtn');
 const zoomResetBtn = document.getElementById('zoomResetBtn');
 const zoomLevelSpan = document.getElementById('zoomLevel');
 
-// Modales del administrador
+
 const loginModal = document.getElementById('loginModal');
 const loginForm = document.getElementById('loginForm');
 const adminEmailInput = document.getElementById('adminEmailInput');
@@ -173,21 +177,19 @@ const editUbicacion = document.getElementById('editUbicacion');
 const editEtiquetas = document.getElementById('editEtiquetas');
 const btnSubmitEdit = document.getElementById('btnSubmitEdit');
 
-// ===================================================
-// INICIALIZACIÓN
-// ===================================================
+
 document.addEventListener('DOMContentLoaded', async () => {
     inicializarTema();
     inicializarVista();
 
-    // Primero se muestran las fotos iniciales, sin esperar a la nube
+    
     actualizarContadores();
     renderizarGaleria();
     setupEventListeners();
     cargarCategorias();
     iniciarSesionAdmin();
 
-    // Una visita por sesión del navegador
+    
     try {
         if (!sessionStorage.getItem('galeria_visita')) {
             sessionStorage.setItem('galeria_visita', '1');
@@ -195,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (e) {}
 
-    // Después se cargan las fotos que subió el administrador
+   
     fotosNube = await cargarFotosNube();
     if (fotosNube.length > 0) {
         sincronizarEtiquetas();
@@ -209,13 +211,11 @@ function obtenerTodasLasImagenes() {
     return [...fotosNube, ...IMAGENES_BASE];
 }
 
-// ===================================================
-// RENDERIZADO DE LA GALERÍA
-// ===================================================
+
 function renderizarGaleria() {
     const listaCompleta = obtenerTodasLasImagenes();
 
-    // 1. Filtrado
+    
     imagenesFiltradas = listaCompleta.filter(img => {
         const coincideCategoria = 
             categoriaActual === 'todos' ? true :
@@ -233,7 +233,7 @@ function renderizarGaleria() {
         return coincideCategoria && coincideBusqueda;
     });
 
-    // 2. Ordenamiento
+   
     if (ordenActual === 'nombre-asc') {
         imagenesFiltradas.sort((a, b) => a.titulo.localeCompare(b.titulo));
     } else if (ordenActual === 'nombre-desc') {
@@ -242,7 +242,7 @@ function renderizarGaleria() {
         imagenesFiltradas.sort((a, b) => (b.orden || 0) - (a.orden || 0));
     }
 
-    // 3. Render en pantalla
+   
     galleryGrid.innerHTML = '';
     favToolbar.style.display = (categoriaActual === 'favoritos' && favoritos.length > 0) ? 'flex' : 'none';
 
@@ -319,9 +319,7 @@ function renderizarGaleria() {
     });
 }
 
-// ===================================================
-// SISTEMA DE FAVORITOS
-// ===================================================
+
 function toggleFavorito(event, id) {
     if (event) event.stopPropagation();
 
@@ -365,9 +363,7 @@ function actualizarBotonModalFav(esFav) {
     }
 }
 
-// ===================================================
-// VISOR DE IMAGEN (LIGHTBOX) CON ZOOM
-// ===================================================
+
 function abrirLightbox(index) {
     if (index < 0 || index >= imagenesFiltradas.length) return;
     imagenModalActualIndex = index;
@@ -386,19 +382,19 @@ function abrirLightbox(index) {
         modalLocation.style.display = 'none';
     }
 
-    // Configurar descarga
+    
     modalDownloadBtn.href = imgData.descargaUrl || imgData.src;
     modalDownloadBtn.onclick = () => registrarEvento('descarga', imgData.id);
     modalDownloadBtn.download = `${imgData.titulo.toLowerCase().replace(/\s+/g, '-')}.jpg`;
 
-    // Configurar compartir
+   
     modalShareBtn.onclick = () => compartirImagen(imgData.src, imgData.titulo, imgData.id);
 
-    // Configurar favorito
+    
     actualizarBotonModalFav(favoritos.includes(imgData.id));
     modalFavBtn.onclick = () => toggleFavorito(null, imgData.id);
 
-    // Editar / eliminar: solo el administrador y solo fotos de la nube
+   
     if (esAdmin && imgData.esNube) {
         modalEditBtn.style.display = 'inline-flex';
         modalEditBtn.onclick = () => { cerrarLightbox(); abrirModalEditar(null, imgData.id); };
@@ -428,7 +424,7 @@ function navegarLightbox(direccion) {
     abrirLightbox(nuevoIndex);
 }
 
-// Funciones de Zoom
+
 function aplicarZoom() {
     modalImg.style.transform = `scale(${zoomActual}) translate(${currentTranslateX}px, ${currentTranslateY}px)`;
     zoomLevelSpan.textContent = `${Math.round(zoomActual * 100)}%`;
@@ -460,7 +456,7 @@ function resetearZoom() {
     aplicarZoom();
 }
 
-// Arrastre con zoom
+
 modalImgContainer.addEventListener('mousedown', (e) => {
     if (zoomActual <= 1) return;
     isPanning = true;
@@ -493,12 +489,7 @@ modalImgContainer.addEventListener('wheel', (e) => {
     }
 }, { passive: false });
 
-// ===================================================
-// ADMINISTRADOR (Supabase Auth + Storage + base de datos)
-// La seguridad real la ponen las políticas RLS de Supabase
-// (archivo supabase-seguridad.sql); esto solo muestra u oculta botones.
-// ===================================================
-// ---------- Categorías (gestionables desde el panel) ----------
+
 const CATEGORIAS_POR_DEFECTO = [
     { clave: 'montanas', nombre: 'Montañas' },
     { clave: 'bosques', nombre: 'Bosques' },
@@ -525,7 +516,7 @@ async function cargarCategorias() {
     pintarCategoriasUI();
 }
 
-// Mantiene sincronizada la etiqueta de cada foto con el nombre actual de su categoría
+
 function sincronizarEtiquetas() {
     obtenerTodasLasImagenes().forEach(img => {
         img.categoriaLabel = nombreCategoria(img.categoria) || img.categoriaLabel;
@@ -538,7 +529,7 @@ function contarFotosDeCategoria(clave) {
 
 function pintarCategoriasUI() {
     sincronizarEtiquetas();
-    // Chips de filtro
+   
     const cont = document.getElementById('filterContainer');
     cont.querySelectorAll('.chip[data-dinamico]').forEach(c => c.remove());
     const chipFav = cont.querySelector('.chip-fav');
@@ -555,7 +546,7 @@ function pintarCategoriasUI() {
         categoriaActual = 'todos';
         cont.querySelector('[data-category="todos"]').classList.add('active');
     }
-    // Listas desplegables de subir / editar
+    
     [inputCategoria, editCategoria].forEach(sel => {
         const previo = sel.value;
         sel.innerHTML = categoriasLista.map(c => `<option value="${esc(c.clave)}">${esc(c.nombre)}</option>`).join('');
@@ -679,7 +670,7 @@ function mostrarVistaPrincipal(vista) {
     if (vista === 'panel') cargarPanel();
 }
 
-// ---------- Inicio y cierre de sesión ----------
+
 function abrirModalLogin() {
     loginModal.classList.add('open');
     loginError.style.display = 'none';
@@ -734,7 +725,7 @@ async function cerrarSesionAdmin() {
     mostrarToast('Sesión cerrada.');
 }
 
-// ---------- Subir foto ----------
+
 function abrirModalSubir() {
     if (!esAdmin) return;
     uploadModal.classList.add('open');
@@ -756,7 +747,7 @@ function limpiarFormularioSubir() {
     previewImg.removeAttribute('src');
 }
 
-// Reduce la foto a máx. 1920 px y la convierte en JPEG ligero
+
 function optimizarImagen(archivo) {
     return new Promise((resolve, reject) => {
         const url = URL.createObjectURL(archivo);
@@ -800,7 +791,7 @@ async function procesarArchivoSeleccionado(archivo) {
     }
 }
 
-// Si ya hay fotos en la nube, usa su mismo bucket; si no, el de config.js
+
 function bucketActual() {
     for (const f of fotosNube) {
         const r = rutaDeStorage(f.src);
@@ -850,12 +841,12 @@ async function subirFoto(e) {
             categoria_label: CATEGORIAS_NOMBRES[inputCategoria.value] || 'Paisajes',
             ubicacion: inputUbicacion.value.trim(),
             src: pub.publicUrl,
-            ruta: nombreArchivo, // tu tabla exige esta columna (ruta del archivo en Storage)
+            ruta: nombreArchivo,
             tags: listaDeEtiquetas(inputEtiquetas.value)
         }).select().single();
 
         if (error) {
-            await supa.storage.from(bucket).remove([nombreArchivo]); // no dejar archivos huérfanos
+            await supa.storage.from(bucket).remove([nombreArchivo]);
             throw error;
         }
 
@@ -874,7 +865,7 @@ async function subirFoto(e) {
     }
 }
 
-// ---------- Editar ----------
+
 function abrirModalEditar(e, id) {
     if (e) e.stopPropagation();
     const foto = fotosNube.find(f => f.id === String(id));
@@ -930,7 +921,7 @@ async function guardarEdicion(e) {
     }
 }
 
-// ---------- Eliminar ----------
+
 async function eliminarFoto(e, id) {
     if (e) e.stopPropagation();
     id = String(id);
@@ -960,7 +951,7 @@ async function eliminarFoto(e, id) {
     }
 }
 
-// ---------- Panel: estadísticas ----------
+
 async function cargarEventos() {
     const paso = 1000;
     let todos = [];
@@ -1028,7 +1019,7 @@ function renderizarPanel() {
     statTiles.innerHTML = tiles.map(([l, n]) =>
         `<div class="stat-tile"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
 
-    // Visitas últimos 14 días
+   
     const dias = [];
     for (let i = 13; i >= 0; i--) {
         const d = new Date();
@@ -1044,7 +1035,7 @@ function renderizarPanel() {
             <span class="bar-lbl">${d.lbl}</span></div>`;
     }).join('');
 
-    // Tabla por foto
+   
     const cero = { vista: 0, descarga: 0, compartir: 0, favorito: 0 };
     const filas = obtenerTodasLasImagenes().map(f => ({ f, s: est.porFoto[f.id] || cero }));
     const criterio = panelOrden.value;
@@ -1068,9 +1059,7 @@ function renderizarPanel() {
         </tr>`).join('');
 }
 
-// ===================================================
-// DESCARGA DE FAVORITAS (archivos individuales)
-// ===================================================
+
 async function descargarFavoritas() {
     const imagenesADescargar = obtenerTodasLasImagenes().filter(img => favoritos.includes(String(img.id)));
 
@@ -1112,16 +1101,14 @@ async function descargarFavoritas() {
         document.body.removeChild(enlace);
         if (urlTemporal) setTimeout(() => URL.revokeObjectURL(urlTemporal), 1000);
 
-        // Pausa corta para que el navegador no bloquee las descargas seguidas
+       
         await new Promise(resolve => setTimeout(resolve, 400));
     }
 
     mostrarToast("¡Descarga de favoritas completada!");
 }
 
-// ===================================================
-// VISTAS Y ORDENAMIENTO
-// ===================================================
+
 function inicializarVista() {
     viewBtns.forEach(btn => {
         if (btn.getAttribute('data-view') === vistaActual) {
@@ -1141,9 +1128,7 @@ function cambiarVista(nuevaVista) {
     inicializarVista();
 }
 
-// ===================================================
-// COMPARTIR (WEB SHARE API + FALLBACK)
-// ===================================================
+
 async function compartirImagen(ruta, titulo, id) {
     registrarEvento('compartir', id);
     const url = new URL(ruta, location.href).href;
@@ -1166,9 +1151,7 @@ async function compartirImagen(ruta, titulo, id) {
     }
 }
 
-// ===================================================
-// SISTEMA DE NOTIFICACIONES TOAST
-// ===================================================
+
 function mostrarToast(mensaje) {
     const toast = document.createElement('div');
     toast.className = 'toast';
@@ -1186,9 +1169,7 @@ function mostrarToast(mensaje) {
     }, 3000);
 }
 
-// ===================================================
-// TEMA CLARO / OSCURO
-// ===================================================
+
 function inicializarTema() {
     const temaGuardado = localStorage.getItem('galeria_tema');
     const prefiereOscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -1219,13 +1200,11 @@ function actualizarIconoTema(tema) {
     }
 }
 
-// ===================================================
-// EVENT LISTENERS GENERALES
-// ===================================================
+
 function setupEventListeners() {
     themeToggle.addEventListener('click', cambiarTema);
 
-    // --- Administrador ---
+   
     btnAbrirLogin.addEventListener('click', abrirModalLogin);
     document.getElementById('loginModalClose').addEventListener('click', cerrarModalLogin);
     document.getElementById('loginModalBackdrop').addEventListener('click', cerrarModalLogin);
