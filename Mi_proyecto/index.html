@@ -194,6 +194,15 @@
         </section>
 
         <section class="admin-card">
+            <div class="admin-card-head"><h3>Categorías</h3></div>
+            <form id="catForm" class="cat-form">
+                <input type="text" id="catNombre" placeholder="Nueva categoría (ej: Desiertos)" maxlength="30" required>
+                <button class="btn btn-accent" type="submit">Agregar</button>
+            </form>
+            <div id="catLista" class="cat-lista"></div>
+        </section>
+
+        <section class="admin-card">
             <div class="admin-card-head">
                 <h3>Fotos y estadísticas</h3>
                 <label class="sr-only" for="panelOrden">Ordenar tabla</label>
@@ -477,6 +486,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
     <script src="config.js"></script>
     <script src="datos.js"></script>
+    <script src="utilidades.js"></script>
     <script src="script.js"></script>
     <script src="asistente.js"></script>
 </body>

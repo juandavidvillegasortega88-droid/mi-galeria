@@ -1423,3 +1423,11 @@ button[disabled] { opacity: 0.6; cursor: wait; }
 .admin-note code { background: var(--bg-page); padding: 1px 5px; border-radius: 4px; }
 
 .admin-view > * + * { margin-top: 20px; }
+
+/* ===== Gestión de categorías (panel) ===== */
+.cat-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.cat-form input { flex: 1 1 220px; padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary); font: inherit; }
+.cat-fila { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; }
+.cat-fila:last-child { border-bottom: none; }
+.cat-nombre { flex: 1 1 140px; font-weight: 600; }
+.cat-n { color: var(--text-secondary); font-size: 0.85rem; min-width: 70px; }

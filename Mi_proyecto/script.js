@@ -184,6 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     actualizarContadores();
     renderizarGaleria();
     setupEventListeners();
+    cargarCategorias();
     iniciarSesionAdmin();
 
     // Una visita por sesión del navegador
@@ -197,8 +198,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Después se cargan las fotos que subió el administrador
     fotosNube = await cargarFotosNube();
     if (fotosNube.length > 0) {
+        sincronizarEtiquetas();
         actualizarContadores();
         renderizarGaleria();
+        renderizarCategoriasPanel();
     }
 });
 
@@ -495,12 +498,136 @@ modalImgContainer.addEventListener('wheel', (e) => {
 // La seguridad real la ponen las políticas RLS de Supabase
 // (archivo supabase-seguridad.sql); esto solo muestra u oculta botones.
 // ===================================================
-const CATEGORIAS_NOMBRES = {
-    montanas: 'Montañas',
-    bosques: 'Bosques',
-    lagos: 'Lagos y Playas',
-    atardeceres: 'Atardeceres'
-};
+// ---------- Categorías (gestionables desde el panel) ----------
+const CATEGORIAS_POR_DEFECTO = [
+    { clave: 'montanas', nombre: 'Montañas' },
+    { clave: 'bosques', nombre: 'Bosques' },
+    { clave: 'lagos', nombre: 'Lagos y Playas' },
+    { clave: 'atardeceres', nombre: 'Atardeceres' }
+];
+let categoriasLista = CATEGORIAS_POR_DEFECTO.slice();
+const CATEGORIAS_NOMBRES = new Proxy({}, { get: (_, clave) => nombreCategoria(clave) });
+
+function nombreCategoria(clave) {
+    const c = categoriasLista.find(x => x.clave === clave);
+    return c ? c.nombre : '';
+}
+
+async function cargarCategorias() {
+    if (!supa) return;
+    try {
+        const { data, error } = await supa.from('categorias').select('*').order('created_at');
+        if (error) throw error;
+        if (data && data.length) categoriasLista = data;
+    } catch (e) {
+        console.warn('Categorías por defecto (ejecuta supabase-categorias.sql):', e.message || e);
+    }
+    pintarCategoriasUI();
+}
+
+// Mantiene sincronizada la etiqueta de cada foto con el nombre actual de su categoría
+function sincronizarEtiquetas() {
+    obtenerTodasLasImagenes().forEach(img => {
+        img.categoriaLabel = nombreCategoria(img.categoria) || img.categoriaLabel;
+    });
+}
+
+function contarFotosDeCategoria(clave) {
+    return obtenerTodasLasImagenes().filter(f => f.categoria === clave).length;
+}
+
+function pintarCategoriasUI() {
+    sincronizarEtiquetas();
+    // Chips de filtro
+    const cont = document.getElementById('filterContainer');
+    cont.querySelectorAll('.chip[data-dinamico]').forEach(c => c.remove());
+    const chipFav = cont.querySelector('.chip-fav');
+    cont.querySelectorAll('.chip[data-category]:not([data-category="todos"]):not([data-category="favoritos"]):not([data-dinamico])').forEach(c => c.remove());
+    categoriasLista.forEach(c => {
+        const b = document.createElement('button');
+        b.className = 'chip' + (categoriaActual === c.clave ? ' active' : '');
+        b.setAttribute('data-category', c.clave);
+        b.setAttribute('data-dinamico', '1');
+        b.textContent = c.nombre;
+        cont.insertBefore(b, chipFav);
+    });
+    if (categoriaActual !== 'todos' && categoriaActual !== 'favoritos' && !nombreCategoria(categoriaActual)) {
+        categoriaActual = 'todos';
+        cont.querySelector('[data-category="todos"]').classList.add('active');
+    }
+    // Listas desplegables de subir / editar
+    [inputCategoria, editCategoria].forEach(sel => {
+        const previo = sel.value;
+        sel.innerHTML = categoriasLista.map(c => `<option value="${esc(c.clave)}">${esc(c.nombre)}</option>`).join('');
+        if (previo && nombreCategoria(previo)) sel.value = previo;
+    });
+    renderizarGaleria();
+    renderizarCategoriasPanel();
+}
+
+function renderizarCategoriasPanel() {
+    const lista = document.getElementById('catLista');
+    if (!lista) return;
+    lista.innerHTML = categoriasLista.map(c => {
+        const n = contarFotosDeCategoria(c.clave);
+        return `<div class="cat-fila">
+            <span class="cat-nombre">${esc(c.nombre)}</span>
+            <span class="cat-n">${n} foto${n === 1 ? '' : 's'}</span>
+            <button class="btn btn-secondary" type="button" data-cat-accion="renombrar" data-clave="${esc(c.clave)}">Renombrar</button>
+            <button class="btn btn-secondary" type="button" data-cat-accion="eliminar" data-clave="${esc(c.clave)}">Eliminar</button>
+        </div>`;
+    }).join('');
+}
+
+async function agregarCategoria(e) {
+    e.preventDefault();
+    const input = document.getElementById('catNombre');
+    const msg = validarCategoria(input.value, categoriasLista);
+    if (msg) return mostrarToast(msg);
+    try {
+        const nombre = input.value.trim();
+        const { data, error } = await supa.from('categorias').insert({ clave: slugCategoria(nombre), nombre }).select();
+        if (error) throw error;
+        if (!data || !data.length) throw new Error('Supabase no permitió crearla (revisa las políticas RLS)');
+        categoriasLista.push(data[0]);
+        input.value = '';
+        pintarCategoriasUI();
+        mostrarToast('Categoría creada 🏷️');
+    } catch (err) {
+        mostrarToast('No se pudo crear: ' + (err.message || err) + ' — ¿ejecutaste supabase-categorias.sql?');
+    }
+}
+
+async function accionCategoria(accion, clave) {
+    const cat = categoriasLista.find(c => c.clave === clave);
+    if (!cat) return;
+    try {
+        if (accion === 'renombrar') {
+            const nuevo = prompt('Nuevo nombre de la categoría:', cat.nombre);
+            if (nuevo === null) return;
+            const msg = validarCategoria(nuevo, categoriasLista.filter(c => c.clave !== clave));
+            if (msg) return mostrarToast(msg);
+            const { data, error } = await supa.from('categorias').update({ nombre: nuevo.trim() }).eq('clave', clave).select();
+            if (error) throw error;
+            if (!data || !data.length) throw new Error('Supabase no permitió el cambio');
+            cat.nombre = nuevo.trim();
+            mostrarToast('Categoría renombrada ✏️');
+        } else {
+            const n = contarFotosDeCategoria(clave);
+            if (n > 0) return mostrarToast(`No se puede eliminar: tiene ${n} foto(s). Cámbiales la categoría primero.`);
+            if (categoriasLista.length <= 1) return mostrarToast('Debe quedar al menos una categoría.');
+            if (!confirm(`¿Eliminar la categoría "${cat.nombre}"?`)) return;
+            const { data, error } = await supa.from('categorias').delete().eq('clave', clave).select();
+            if (error) throw error;
+            if (!data || !data.length) throw new Error('Supabase no permitió borrar');
+            categoriasLista = categoriasLista.filter(c => c.clave !== clave);
+            mostrarToast('Categoría eliminada 🗑️');
+        }
+        pintarCategoriasUI();
+    } catch (err) {
+        mostrarToast('No se pudo completar: ' + (err.message || err));
+    }
+}
 
 function esc(texto) {
     return String(texto == null ? '' : texto)
@@ -695,6 +822,12 @@ async function subirFoto(e) {
         return;
     }
     const titulo = inputTitulo.value.trim();
+    const errores = validarDatosFoto({
+        titulo, categoria: inputCategoria.value, ubicacion: inputUbicacion.value,
+        tags: listaDeEtiquetas(inputEtiquetas.value),
+        tituloExistente: fotosNube.some(f => f.titulo.toLowerCase() === titulo.toLowerCase()) ? titulo : ''
+    });
+    if (errores.length) { mostrarToast(errores[0]); return; }
     const bucket = bucketActual();
     const slug = titulo.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
         .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'foto';
@@ -765,6 +898,12 @@ function cerrarModalEditar() {
 async function guardarEdicion(e) {
     e.preventDefault();
     const id = editFotoId.value;
+    const errEdit = validarDatosFoto({
+        titulo: editTitulo.value, categoria: editCategoria.value, ubicacion: editUbicacion.value,
+        tags: listaDeEtiquetas(editEtiquetas.value),
+        tituloExistente: fotosNube.some(f => f.id !== id && f.titulo.toLowerCase() === editTitulo.value.trim().toLowerCase()) ? editTitulo.value.trim() : ''
+    });
+    if (errEdit.length) { mostrarToast(errEdit[0]); return; }
     const cambios = {
         titulo: editTitulo.value.trim(),
         categoria: editCategoria.value,
@@ -1160,13 +1299,18 @@ function setupEventListeners() {
         });
     });
 
-    filterChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            filterChips.forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-            categoriaActual = chip.getAttribute('data-category');
-            renderizarGaleria();
-        });
+    document.getElementById('filterContainer').addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip[data-category]');
+        if (!chip) return;
+        document.querySelectorAll('#filterContainer .chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        categoriaActual = chip.getAttribute('data-category');
+        renderizarGaleria();
+    });
+    document.getElementById('catForm').addEventListener('submit', agregarCategoria);
+    document.getElementById('catLista').addEventListener('click', (e) => {
+        const b = e.target.closest('button[data-cat-accion]');
+        if (b) accionCategoria(b.dataset.catAccion, b.dataset.clave);
     });
 
     modalClose.addEventListener('click', cerrarLightbox);
