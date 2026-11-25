@@ -1437,3 +1437,16 @@ button[disabled] { opacity: 0.6; cursor: wait; }
     max-height: calc(100vh - 32px);
     overflow-y: auto;
 }
+
+/* ===== Visor: la tarjeta toma exactamente el tamaño de la foto (sin fondo negro) ===== */
+.modal-content { width: fit-content; min-width: min(260px, 92vw); max-width: min(900px, 92vw); }
+.modal-img-container { width: auto; min-height: 0; background: var(--bg-card); }
+.modal-img-container img {
+    display: block; width: auto; height: auto; max-width: 100%; margin: 0 auto;
+    max-height: min(68vh, calc(100vh - 220px));
+}
+/* La barra de información no ensancha la tarjeta: se ajusta al ancho de la foto */
+.modal-info { flex-wrap: wrap; width: 0; min-width: 100%; box-sizing: border-box; }
+.modal-actions { flex-wrap: wrap; }
+/* El botón de cerrar va sobre la foto para que nunca se salga de la pantalla */
+.modal-close { top: 10px; right: 10px; z-index: 30; background: rgba(0, 0, 0, 0.45); }
