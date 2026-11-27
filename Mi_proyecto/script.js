@@ -1,12 +1,6 @@
 
-const IMAGENES_BASE = imagenesIniciales.map((i) => ({
-    ...i,
-    id: String(i.id),
-    orden: Number(i.id),
-    descargaUrl: i.src
-}));
-
 let fotosNube = [];
+let cargandoNube = true;
 let esAdmin = false;
 let adminEmail = '';
 let vistaPrincipal = 'galeria';
@@ -199,16 +193,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
    
     fotosNube = await cargarFotosNube();
-    if (fotosNube.length > 0) {
-        sincronizarEtiquetas();
-        actualizarContadores();
-        renderizarGaleria();
-        renderizarCategoriasPanel();
-    }
+    cargandoNube = false;
+    sincronizarEtiquetas();
+    actualizarContadores();
+    renderizarGaleria();
+    renderizarCategoriasPanel();
 });
 
 function obtenerTodasLasImagenes() {
-    return [...fotosNube, ...IMAGENES_BASE];
+    return fotosNube;
 }
 
 
@@ -248,7 +241,12 @@ function renderizarGaleria() {
 
     if (imagenesFiltradas.length === 0) {
         galleryStatus.style.display = 'block';
-        if (categoriaActual === 'favoritos' && favoritos.length === 0) {
+        if (cargandoNube) {
+            galleryStatus.innerHTML = `
+                <p style="font-size: 2rem; margin-bottom: 8px;">⏳</p>
+                <h3 style="font-size: 1.2rem; font-weight: 700;">Cargando galería...</h3>
+            `;
+        } else if (categoriaActual === 'favoritos' && favoritos.length === 0) {
             galleryStatus.innerHTML = `
                 <p style="font-size: 2rem; margin-bottom: 8px;">❤️</p>
                 <h3 style="font-size: 1.2rem; font-weight: 700;">Aún no tienes favoritos</h3>
@@ -350,7 +348,8 @@ function toggleFavorito(event, id) {
 
 function actualizarContadores() {
     totalCountSpan.textContent = obtenerTodasLasImagenes().length;
-    favCountBadge.textContent = favoritos.length;
+    const idsExistentes = new Set(obtenerTodasLasImagenes().map(i => i.id));
+    favCountBadge.textContent = cargandoNube ? favoritos.length : favoritos.filter(id => idsExistentes.has(id)).length;
 }
 
 function actualizarBotonModalFav(esFav) {
@@ -1046,7 +1045,7 @@ function renderizarPanel() {
         <tr>
             <td><div class="foto-cell">
                 <img src="${esc(f.src)}" alt="" loading="lazy">
-                <div><div class="t">${esc(f.titulo)}${f.esNube ? '' : '<span class="tag-fija">Fija</span>'}</div>
+                <div><div class="t">${esc(f.titulo)}</div>
                 <div class="c">${esc(f.categoriaLabel)}${f.ubicacion ? ' · ' + esc(f.ubicacion) : ''}</div></div>
             </div></td>
             <td class="num">${s.vista}</td>
