@@ -50,9 +50,9 @@ async function registrarEvento(tipo, fotoRef) {
     if (!supa) return;
     try {
         const { data } = await supa.auth.getSession();
-        if (data && data.session) return; // no contar las acciones del administrador
+        if (data && data.session) return;
         await supa.from('eventos').insert({ tipo: tipo, foto_ref: fotoRef ? String(fotoRef) : null });
-    } catch (e) { /* las estadísticas nunca deben romper la galería */ }
+    } catch (e) {  }
 }
 
 
@@ -118,8 +118,34 @@ function adaptarVisorAFoto() {
     if (!caja || !modalImg.naturalWidth) return;
     const r = modalImg.naturalWidth / modalImg.naturalHeight;
     caja.dataset.forma = r < 0.6 ? 'muy-alta' : r < 0.9 ? 'vertical' : r <= 1.15 ? 'cuadrada' : 'horizontal';
+    const nombres = { 'muy-alta': 'Muy vertical', vertical: 'Vertical', cuadrada: 'Cuadrada', horizontal: 'Horizontal' };
+    const detalle = document.getElementById('modalDetalle');
+    if (detalle) detalle.textContent = `${modalImg.naturalWidth} × ${modalImg.naturalHeight} px · ${nombres[caja.dataset.forma]}`;
 }
 modalImg.addEventListener('load', adaptarVisorAFoto);
+
+function llenarFichaExtra(imgData, index) {
+    const cont = document.getElementById('modalExtra');
+    if (!cont) return;
+    const tags = (imgData.tags || []).slice(0, 8);
+    const relacionadas = imagenesFiltradas
+        .map((f, i) => ({ f, i }))
+        .filter(({ f, i }) => i !== index && f.categoria === imgData.categoria)
+        .slice(0, 4);
+    cont.innerHTML =
+        (tags.length ? `<div class="extra-bloque"><h4>Etiquetas</h4><div class="extra-tags">${tags.map(t => `<span>#${esc(t)}</span>`).join('')}</div></div>` : '') +
+        `<div class="extra-bloque"><h4>Detalles</h4><p class="extra-detalle" id="modalDetalle"></p></div>` +
+        (relacionadas.length ? `<div class="extra-bloque"><h4>Más de ${esc(imgData.categoriaLabel)}</h4><div class="extra-rel">${relacionadas.map(({ f, i }) =>
+            `<button type="button" class="extra-mini" data-idx="${i}" title="${esc(f.titulo)}"><img src="${esc(f.src)}" alt="${esc(f.titulo)}" loading="lazy"></button>`).join('')}</div></div>` : '');
+    if (modalImg.complete) adaptarVisorAFoto();
+}
+const modalExtra = document.getElementById('modalExtra');
+if (modalExtra) {
+    modalExtra.addEventListener('click', (e) => {
+        const b = e.target.closest('.extra-mini');
+        if (b) abrirLightbox(Number(b.dataset.idx));
+    });
+}
 const modalTitle = document.getElementById('modalTitle');
 const modalCategory = document.getElementById('modalCategory');
 const modalLocation = document.getElementById('modalLocation');
@@ -371,6 +397,7 @@ function abrirLightbox(index) {
     resetearZoom();
 
     modalImg.src = imgData.src;
+    llenarFichaExtra(imgData, index);
     modalTitle.textContent = imgData.titulo;
     modalCategory.textContent = imgData.categoriaLabel;
 
