@@ -231,20 +231,20 @@ classDiagram
 
 | Id | Prueba | Resultado esperado | Resultado real |
 |---|---|---|---|
-| M01 | Visitante abre la galería sin sesión | Ve fotos; no ve botones de administrador | Por probar |
-| M02 | Login con datos incorrectos | Mensaje «Correo o contraseña incorrectos» | Por probar |
+| M01 | Visitante abre la galería sin sesión | Ve fotos; no ve botones de administrador | cumple con los resultados |
+| M02 | Login con datos incorrectos | Mensaje «Correo o contraseña incorrectos» | cumple con los resultados  |
 | M03 | Subir foto con título de 2 letras | Aviso de validación; no se sube | Cumple: rechazó el título «ab» con aviso |
 | M04 | Subir foto válida | Aparece en la galería y en el panel | Cumple: la foto se publicó y se ve en la galería y en el panel |
 | M05 | Crear categoría «Desiertos» | Nuevo chip y opción en las listas | Cumple: apareció el chip y la opción en las listas |
 | M06 | Eliminar categoría con fotos | Bloqueado con aviso (RN05) | Cumple: bloqueó eliminar «Montañas» |
-| M07 | Renombrar categoría | El nombre cambia en todas sus fotos | Por probar |
-| M08 | Marcar favorita y recargar | La favorita persiste | Por probar |
-| M09 | Buscar «playa» en el asistente | Sugiere fotos relacionadas | Por probar |
+| M07 | Renombrar categoría | El nombre cambia en todas sus fotos | cumple con los resultados|
+| M08 | Marcar favorita y recargar | La favorita persiste | cumple con los resultados |
+| M09 | Buscar «playa» en el asistente | Sugiere fotos relacionadas | cumple con los resultados |
 | M10 | Tema oscuro y móvil | Interfaz legible y sin desbordes | Cumple: probado en celular y en computador con tema oscuro |
 | M11 | Abrir la galería sin fotos en la base o sin conexión a Supabase | Muestra «Cargando galería...» y luego el estado vacío, sin errores en consola | Por probar |
 | M12 | Tener en el navegador favoritas de las antiguas fotos fijas (ids 1 a 13) | El contador de favoritas solo cuenta las fotos que existen | Por probar |
 | M13 | Abrir una foto vertical en computador y en celular | Computador: foto a la izquierda y columna de información. Celular: foto arriba y ficha compacta. Sin barras negras ni deformación | Celular: cumple. Computador: por probar con la ficha extra |
-| M14 | Intentar crear una cuenta nueva con la clave pública | Supabase rechaza el registro; solo entran los usuarios creados manualmente | Por probar |
+| M14 | Intentar crear una cuenta nueva con la clave pública | Supabase rechaza el registro; solo entran los usuarios creados manualmente | cumple con los resultados |
 
 
 ## 9. Métricas
