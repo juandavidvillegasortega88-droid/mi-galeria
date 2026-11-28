@@ -1,1 +1,22 @@
+PASA   T01  Busca por etiqueta
+PASA   T02  Ignora tildes y plurales (montañas = montaña)
+PASA   T03  Usa sinónimos (playa encuentra costa/atardecer)
+PASA   T04  Consulta sin palabras útiles devuelve null
+PASA   T05  Máximo 4 resultados
+PASA   T06  Sin coincidencias devuelve lista vacía
+PASA   T07  slugCategoria quita tildes y espacios
+PASA   T08  slugCategoria con acentos
+PASA   T09  Categoría: nombre muy corto es inválido
+PASA   T10  Categoría: duplicada es inválida (sin importar mayúsculas)
+PASA   T11  Categoría válida devuelve cadena vacía
+PASA   T12  Categoría solo con símbolos es inválida
+PASA   T13  Foto válida no genera errores
+PASA   T14  Título corto genera error
+PASA   T15  Título solo con espacios genera error
+PASA   T16  Título muy largo genera error
+PASA   T17  Sin categoría genera error
+PASA   T18  Más de 10 etiquetas genera error
+PASA   T19  Título repetido genera error
+
+19/19 pruebas superadas
 
