@@ -241,8 +241,8 @@ classDiagram
 | M08 | Marcar favorita y recargar | La favorita persiste | cumple con los resultados |
 | M09 | Buscar «playa» en el asistente | Sugiere fotos relacionadas | cumple con los resultados |
 | M10 | Tema oscuro y móvil | Interfaz legible y sin desbordes | Cumple: probado en celular y en computador con tema oscuro |
-| M11 | Abrir la galería sin fotos en la base o sin conexión a Supabase | Muestra «Cargando galería...» y luego el estado vacío, sin errores en consola | Por probar |
-| M12 | Tener en el navegador favoritas de las antiguas fotos fijas (ids 1 a 13) | El contador de favoritas solo cuenta las fotos que existen | Por probar |
+| M11 | Abrir la galería sin fotos en la base o sin conexión a Supabase | Muestra «Cargando galería...» y luego el estado vacío, sin errores en consola | cumple con los resultados |
+| M12 | Tener en el navegador favoritas de las antiguas fotos fijas (ids 1 a 13) | El contador de favoritas solo cuenta las fotos que existen | cumple con los resultados |
 | M13 | Abrir una foto vertical en computador y en celular | Computador: foto a la izquierda y columna de información. Celular: foto arriba y ficha compacta. Sin barras negras ni deformación | Celular: cumple. Computador: por probar con la ficha extra |
 | M14 | Intentar crear una cuenta nueva con la clave pública | Supabase rechaza el registro; solo entran los usuarios creados manualmente | cumple con los resultados |
 
